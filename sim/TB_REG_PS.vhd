@@ -22,9 +22,6 @@ architecture BHV of TB_REG_PS is
     signal D_IN: std_logic_vector(REG_NUMBER-1 downto 0);
 begin
     UUT: REG_PS
-    generic map (
-        REG_NUMBER => REG_NUMBER
-    )
     port map(
         CLK => CLK,
         RST => RST,

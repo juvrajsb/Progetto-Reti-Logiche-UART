@@ -21,9 +21,6 @@ architecture BHV of TB_REG_PP is
     signal D_IN, D_OUT: std_logic_vector(REG_NUMBER-1 downto 0);
 begin
     UUT: REG_PP
-    generic map(
-        REG_NUMBER => REG_NUMBER
-    )
     port map(
         CLK => CLK,
         RST => RST,

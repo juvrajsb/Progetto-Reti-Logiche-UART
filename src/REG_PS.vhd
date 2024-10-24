@@ -8,6 +8,7 @@ entity REG_PS is
     
     port(
         CLK: in std_logic;
+        EN: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic_vector(REG_NUMBER-1 downto 0);
         LOAD: in std_logic;
@@ -25,7 +26,7 @@ begin
             -- Syncronous reset
             if RST='1' then
                 Q <= (others => '0');
-            else
+            elsif EN='1' then
                 if LOAD='1' then
                     Q <= D_IN;
                 else

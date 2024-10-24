@@ -15,7 +15,7 @@ entity REG_PP is
     );
 end REG_PP;
 
-architecture BHV of REG_PP is
+architecture RTL of REG_PP is
 begin
     process(CLK) is
     begin
@@ -28,4 +28,4 @@ begin
             end if;
         end if;
     end process;
-end BHV;
+end RTL;

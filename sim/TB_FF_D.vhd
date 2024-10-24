@@ -5,7 +5,7 @@ entity TB_FF_D is
 end TB_FF_D;
 
 architecture BHV of TB_FF_D is
-    constant CLK_PERIOD: time := 1 ns;
+    constant CLK_PERIOD: time := 10 ns;
     
     component FF_D is
         port(

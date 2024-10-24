@@ -5,12 +5,13 @@ entity TB_REG_PS is
 end TB_REG_PS;
 
 architecture BHV of TB_REG_PS is
-    constant CLK_PERIOD: time := 1 ns;
+    constant CLK_PERIOD: time := 20 ns;
     constant REG_NUMBER: integer := 8;
     
     component REG_PS is
         port(
             CLK: in std_logic;
+            EN: in std_logic;
             RST: in std_logic;
             LOAD: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER-1 downto 0);
@@ -18,12 +19,13 @@ architecture BHV of TB_REG_PS is
         );
     end component;
     
-    signal CLK, RST, LOAD, D_OUT: std_logic;
+    signal CLK, EN, RST, LOAD, D_OUT: std_logic;
     signal D_IN: std_logic_vector(REG_NUMBER-1 downto 0);
 begin
     UUT: REG_PS
     port map(
         CLK => CLK,
+        EN => EN,
         RST => RST,
         LOAD => LOAD,
         D_IN => D_IN,
@@ -41,7 +43,7 @@ begin
     
     SIM: process is
     begin
-        wait for CLK_PERIOD * 2.3;
+        EN <= '1';
         RST <= '1';
         
         wait for CLK_PERIOD * 5;
@@ -55,13 +57,13 @@ begin
         wait for CLK_PERIOD * REG_NUMBER;
         RST <= '0';
         LOAD <= '1';
-        D_IN <= "11111111";
+        D_IN <= "00000111";
         
         wait for CLK_PERIOD * 5;
         LOAD <= '0';
         
-        wait for CLK_PERIOD * REG_NUMBER;
-        RST <= '1';
+        wait for CLK_PERIOD * REG_NUMBER/2;
+        EN <= '0';
         
         wait;
     end process;

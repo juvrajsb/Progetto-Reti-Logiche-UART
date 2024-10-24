@@ -16,7 +16,7 @@ entity REG_PS is
     );
 end REG_PS;
 
-architecture BHV of REG_PS is
+architecture RTL of REG_PS is
     -- Q signal keeps track of the registers' state
     signal Q: std_logic_vector(REG_NUMBER-1 downto 0);
 begin
@@ -38,4 +38,4 @@ begin
     end process;
     
     D_OUT <= Q(0);
-end BHV;
+end RTL;

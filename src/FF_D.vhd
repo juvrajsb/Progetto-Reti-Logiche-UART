@@ -11,7 +11,7 @@ entity FF_D is
     );
 end FF_D;
 
-architecture BHV of FF_D is
+architecture RTL of FF_D is
 begin
     process(CLK) is
     begin
@@ -24,4 +24,4 @@ begin
             end if;
         end if;
     end process;
-end BHV;
+end RTL;

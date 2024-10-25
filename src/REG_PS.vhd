@@ -24,12 +24,14 @@ begin
     begin
         if RST='1' then
             Q <= (others => '0');
-        elsif CLK'event and CLK='1' and EN='1' then
-            if LOAD='1' then
-                Q <= D_IN;
-            else
-                -- Right shift
-                Q <= '0' & Q(REG_NUMBER-1 downto 1);
+        elsif CLK'event and CLK='1' then
+            if EN='1' then
+                if LOAD='1' then
+                    Q <= D_IN;
+                else
+                    -- Right shift
+                    Q <= '0' & Q(REG_NUMBER-1 downto 1);
+                end if;
             end if;
         end if;
     end process;

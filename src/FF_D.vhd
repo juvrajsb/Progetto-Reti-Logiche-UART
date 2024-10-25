@@ -13,15 +13,12 @@ end FF_D;
 
 architecture RTL of FF_D is
 begin
-    process(CLK) is
+    process(CLK, RST) is
     begin
-        if CLK'event and CLK='1' then
-            -- Syncronous reset
-            if RST='1' then
-                Q <= '0';
-            elsif EN='1' then
-                Q <= D;
-            end if;
+        if RST='1' then
+            Q <= '0';
+        elsif CLK'event and CLK='1' and EN='1' then
+            Q <= D;
         end if;
     end process;
 end RTL;

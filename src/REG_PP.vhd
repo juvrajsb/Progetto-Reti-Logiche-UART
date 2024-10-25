@@ -17,15 +17,12 @@ end REG_PP;
 
 architecture RTL of REG_PP is
 begin
-    process(CLK) is
+    process(CLK, RST) is
     begin
-        if CLK'event and CLK='1' then
-            -- Syncronous reset
-            if RST='1' then
-                D_OUT <= (others => '0');
-            elsif EN='1' then
-                D_OUT <= D_IN;
-            end if;
+        if RST='1' then
+            D_OUT <= (others => '0');
+        elsif CLK'event and CLK='1' and EN='1' then
+            D_OUT <= D_IN;
         end if;
     end process;
 end RTL;

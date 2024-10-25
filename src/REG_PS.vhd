@@ -20,19 +20,16 @@ architecture RTL of REG_PS is
     -- Q signal keeps track of the registers' state
     signal Q: std_logic_vector(REG_NUMBER-1 downto 0);
 begin
-    process(CLK) is
+    process(CLK, RST) is
     begin
-        if CLK'event and CLK='1' then
-            -- Syncronous reset
-            if RST='1' then
-                Q <= (others => '0');
-            elsif EN='1' then
-                if LOAD='1' then
-                    Q <= D_IN;
-                else
-                    -- Right shift
-                    Q <= '0' & Q(REG_NUMBER-1 downto 1);
-                end if;
+        if RST='1' then
+            Q <= (others => '0');
+        elsif CLK'event and CLK='1' and EN='1' then
+            if LOAD='1' then
+                Q <= D_IN;
+            else
+                -- Right shift
+                Q <= '0' & Q(REG_NUMBER-1 downto 1);
             end if;
         end if;
     end process;

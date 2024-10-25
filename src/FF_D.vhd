@@ -17,8 +17,10 @@ begin
     begin
         if RST='1' then
             Q <= '0';
-        elsif CLK'event and CLK='1' and EN='1' then
-            Q <= D;
+        elsif CLK'event and CLK='1' then
+            if EN='1' then
+                Q <= D;
+            end if;
         end if;
     end process;
 end RTL;

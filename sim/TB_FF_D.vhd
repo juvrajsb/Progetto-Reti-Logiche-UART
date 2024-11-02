@@ -41,21 +41,20 @@ begin
     begin
         EN <= '1';
         RST <= '1';
-    
         wait for CLK_PERIOD * 9.4;
+        
         D <= '0';
         RST <= '0';
-        
         wait for CLK_PERIOD * 5;
+        
         D <= '1';
-        
         wait for CLK_PERIOD * 5;
+        
         EN <= '0';
         D <= '0';
-        
         wait for CLK_PERIOD * 5;
-        RST <= '1';
         
+        RST <= '1';
         wait;
     end process;
 end BHV;

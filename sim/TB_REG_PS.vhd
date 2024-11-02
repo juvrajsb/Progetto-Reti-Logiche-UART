@@ -45,26 +45,25 @@ begin
     begin
         EN <= '1';
         RST <= '1';
-        
         wait for CLK_PERIOD * 5;
+        
         RST <= '0';
         LOAD <= '1';
         D_IN <= "10101010";
-        
         wait for CLK_PERIOD; 
-        LOAD <= '0';
         
+        LOAD <= '0';
         wait for CLK_PERIOD * (REG_NUMBER + 1);
+        
         RST <= '0';
         LOAD <= '1';
         D_IN <= "00000111";
-        
         wait for CLK_PERIOD * 5;
+        
         LOAD <= '0';
-        
         wait for CLK_PERIOD * REG_NUMBER/2;
-        EN <= '0';
         
+        EN <= '0';
         wait;
     end process;
 end BHV;

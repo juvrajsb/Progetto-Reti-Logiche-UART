@@ -31,26 +31,29 @@ begin
     CLK_GEN: process is
     begin
         CLK <= '0';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
         
         CLK <= '1';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
     end process;
     
     SIM: process is
     begin
-        EN <= '1';
         RST <= '1';
         wait for CLK_PERIOD * 9.4;
         
-        D <= '0';
+        EN <= '1';
         RST <= '0';
+        D <= '0';
         wait for CLK_PERIOD * 5;
         
+        EN <= '1';
+        RST <= '0';
         D <= '1';
         wait for CLK_PERIOD * 5;
         
         EN <= '0';
+        RST <= '0';
         D <= '0';
         wait for CLK_PERIOD * 5;
         

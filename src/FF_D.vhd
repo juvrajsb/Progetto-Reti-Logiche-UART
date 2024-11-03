@@ -15,10 +15,10 @@ architecture RTL of FF_D is
 begin
     process(CLK, RST) is
     begin
-        if RST='1' then
+        if RST = '1' then
             Q <= '0';
-        elsif CLK'event and CLK='1' then
-            if EN='1' then
+        elsif CLK'event and CLK = '1' then
+            if EN = '1' then
                 Q <= D;
             end if;
         end if;

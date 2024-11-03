@@ -18,15 +18,15 @@ architecture RTL of TX_FSM is
 begin
     UPDATE_STATE: process(CLK, RST) is
     begin
-        if RST='1' then
+        if RST = '1' then
             Q <= (others => '0');
-        elsif CLK'event and CLK='1' then
-            if EN='1' then
-                if Q="0000" then
-                    if START='1' and CTS='1' then
+        elsif CLK'event and CLK = '1' then
+            if EN = '1' then
+                if Q = "0000" then
+                    if START = '1' and CTS = '1' then
                         Q <= "0001";
                     end if;
-                elsif Q/="1001" then
+                elsif Q /= "1001" then
                     -- Q+1 without using arithmetical operators
                     Q(0) <= not Q(0);
                     Q(1) <= Q(1) xor Q(0);
@@ -40,10 +40,10 @@ begin
     end process;
     
     -- OUTPUTS ASSIGNMENT
-    PS_REG_LOAD <= '1' when Q="0000" else
+    PS_REG_LOAD <= '1' when Q = "0000" else
                    '0';
     
-    BIT_TO_SEND <= '1' when Q="0000" else
-                   '0' when Q="0001" else
+    BIT_TO_SEND <= '1' when Q = "0000" else
+                   '0' when Q = "0001" else
                    PS_REG_SHIFT_BIT;
 end RTL;

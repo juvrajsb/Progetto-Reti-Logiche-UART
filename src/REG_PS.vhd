@@ -10,7 +10,7 @@ entity REG_PS is
         CLK: in std_logic;
         EN: in std_logic;
         RST: in std_logic;
-        D_IN: in std_logic_vector(REG_NUMBER-1 downto 0);
+        D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
         LOAD: in std_logic;
         D_OUT: out std_logic
     );
@@ -22,11 +22,11 @@ architecture RTL of REG_PS is
 begin
     process(CLK, RST) is
     begin
-        if RST='1' then
+        if RST = '1' then
             Q <= (others => '0');
-        elsif CLK'event and CLK='1' then
-            if EN='1' then
-                if LOAD='1' then
+        elsif CLK'event and CLK = '1' then
+            if EN = '1' then
+                if LOAD = '1' then
                     Q <= D_IN & '0'; -- Add an empty bit to avoid loss of D_IN(0) after the first right shift
                 else
                     -- Right shift

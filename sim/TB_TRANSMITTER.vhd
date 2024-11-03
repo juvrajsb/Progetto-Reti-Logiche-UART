@@ -40,10 +40,10 @@ begin
     CLK_GEN: process is
     begin
         CLK <= '0';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
         
         CLK <= '1';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
     end process;
     
     SIM: process is

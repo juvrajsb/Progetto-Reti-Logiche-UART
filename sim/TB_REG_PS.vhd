@@ -14,13 +14,13 @@ architecture BHV of TB_REG_PS is
             EN: in std_logic;
             RST: in std_logic;
             LOAD: in std_logic;
-            D_IN: in std_logic_vector(REG_NUMBER-1 downto 0);
+            D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             D_OUT: out std_logic
         );
     end component;
     
     signal CLK, EN, RST, LOAD, D_OUT: std_logic;
-    signal D_IN: std_logic_vector(REG_NUMBER-1 downto 0);
+    signal D_IN: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
     UUT: REG_PS
     port map(
@@ -35,18 +35,18 @@ begin
     CLK_GEN: process is
     begin
         CLK <= '0';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
         
         CLK <= '1';
-        wait for CLK_PERIOD/2;
+        wait for CLK_PERIOD / 2;
     end process;
     
     SIM: process is
     begin
-        EN <= '1';
         RST <= '1';
         wait for CLK_PERIOD * 5;
         
+        EN <= '1';
         RST <= '0';
         LOAD <= '1';
         D_IN <= "10101010";
@@ -55,15 +55,22 @@ begin
         LOAD <= '0';
         wait for CLK_PERIOD * (REG_NUMBER + 1);
         
+        EN <= '1';
         RST <= '0';
         LOAD <= '1';
         D_IN <= "00000111";
         wait for CLK_PERIOD * 5;
         
+        EN <= '1';
+        RST <= '0';
         LOAD <= '0';
-        wait for CLK_PERIOD * REG_NUMBER/2;
+        D_IN <= "00000111";
+        wait for CLK_PERIOD * (REG_NUMBER / 2);
         
         EN <= '0';
+        RST <= '0';
+        LOAD <= '1';
+        D_IN <= "00000111";
         wait;
     end process;
 end BHV;

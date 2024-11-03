@@ -33,7 +33,7 @@ architecture RTL of TRANSMITTER is
             CLK: in std_logic;
             EN: in std_logic;
             RST: in std_logic;
-            D_IN: in std_logic_vector(REG_NUMBER-1 downto 0);
+            D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             LOAD: in std_logic;
             D_OUT: out std_logic
         );
@@ -64,7 +64,7 @@ begin
         PAR_BIT => PAR_BIT
     );
     
-    PS_REG_DATA <= (PAR_BIT & D_IN(6 downto 0)) when LEN='0' else
+    PS_REG_DATA <= (PAR_BIT & D_IN(6 downto 0)) when LEN = '0' else
                    D_IN;
     
     -- SAVE ELABORATED INPUT

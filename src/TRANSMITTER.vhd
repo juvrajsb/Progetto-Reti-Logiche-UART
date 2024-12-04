@@ -58,7 +58,7 @@ architecture RTL of TRANSMITTER is
     
     component REG_PS is
         generic(
-            REG_NUMBER: integer := 8
+            REG_NUMBER: integer := 9
         );
         
         port(
@@ -90,7 +90,7 @@ end component;
     
     -- INTERNAL SIGNALS
     signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD: std_logic;
-    signal PS_REG_DATA: std_logic_vector(7 downto 0);
+    signal PS_REG_DATA: std_logic_vector(8 downto 0);
 begin
     -- INPUT AND OUTPUT REGISTERS
     D_IN_REG: REG_PP
@@ -172,8 +172,8 @@ begin
         PAR_BIT => PAR_BIT
     );
     
-    PS_REG_DATA <= (PAR_BIT & D_IN_SAMPLE(6 downto 0)) when LEN_SAMPLE = '0' else
-                   D_IN_SAMPLE;
+    PS_REG_DATA <= (PAR_BIT & D_IN_SAMPLE(6 downto 0) & '0') when LEN_SAMPLE = '0' else
+                   (D_IN_SAMPLE & '0'); -- '0' is added in both cases to avoid losing least significant bit during transmission
     
     -- SAVE ELABORATED INPUT
     REG: REG_PS

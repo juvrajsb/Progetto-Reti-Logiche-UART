@@ -71,25 +71,44 @@ architecture RTL of TRANSMITTER is
         );
     end component;
     
-    component TX_FSM is
-    port(
-        CLK: in std_logic;
-        EN: in std_logic;
-        RST: in std_logic;
-        PS_REG_SHIFT_BIT: in std_logic;
-        START: in std_logic;
-        CTS: in std_logic;
-        PS_REG_LOAD: out std_logic;
-        BIT_TO_SEND: out std_logic;
-        BUSY: out std_logic
-    );
-end component;
+    component COUNTER is
+        generic(
+            REQUIRED_BITS: integer := 4
+        );
+        
+        port(
+            CLK: in std_logic;
+            EN: in std_logic;
+            RST: in std_logic;
+            REF: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
+            CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
+        );
+    end component;
+    
+    component TX_CONTROLLER is
+        generic(
+            COUNTER_BITS: integer := 4
+        );
+        
+        port(
+            CNT_STATE: in std_logic_vector(COUNTER_BITS - 1 downto 0);
+            PS_REG_SHIFT_BIT: in std_logic;
+            START: in std_logic;
+            CTS: in std_logic;
+            CNT_ENABLE: out std_logic;
+            PS_REG_LOAD: out std_logic;
+            BIT_TO_SEND: out std_logic;
+            BUSY: out std_logic
+        );
+    end component;
+    
     -- INPUT AND OUTPUT RELATED SIGNALS
     signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, BUSY_FF_INPUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
-    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD: std_logic;
+    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_ENABLE: std_logic;
+    signal CNT_STATE: std_logic_vector(3 downto 0);
     signal PS_REG_DATA: std_logic_vector(8 downto 0);
 begin
     -- INPUT AND OUTPUT REGISTERS
@@ -186,15 +205,29 @@ begin
         D_OUT => PS_REG_SHIFT_BIT
     );
     
-    -- MANAGE TRASMISSION USING A FSM
-    FSM: TX_FSM
+    -- MANAGE TRASMISSION
+    CNT_MOD_10: COUNTER
+    generic map(
+        REQUIRED_BITS => 4
+    )
     port map(
         CLK => CLK_X1,
-        EN => '1',
+        EN => CNT_ENABLE,
         RST => RST,
+        REF => "1001", -- Last number in counter sequence
+        CNT => CNT_STATE
+    );
+    
+    CONTROLLER: TX_CONTROLLER
+    generic map(
+        COUNTER_BITS => 4
+    )
+    port map(
+        CNT_STATE => CNT_STATE,
         PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,
         START => START_SAMPLE,
         CTS => CTS_SAMPLE,
+        CNT_ENABLE => CNT_ENABLE,
         PS_REG_LOAD => PS_REG_LOAD,
         BIT_TO_SEND => TX_FF_INPUT,
         BUSY => BUSY_FF_INPUT

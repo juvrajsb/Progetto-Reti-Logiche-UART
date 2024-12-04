@@ -17,21 +17,22 @@ entity REG_SP is
 end REG_SP;
 
 architecture RTL of REG_SP is
-    -- Q signal keeps track of the registers' state
-    signal Q: std_logic_vector(REG_NUMBER - 1 downto 0);
+    signal STATE: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
     process(CLK, RST) is
     begin
         if RST = '1' then
-            Q <= (others => '0');
-        elsif CLK'event and CLK = '1' then
-            if EN = '1' then
-                if LOAD = '1' then
-                    Q <= D_IN & Q(REG_NUMBER - 1 downto 1);
+            STATE <= (others => '0');
+        else
+            if CLK'event and CLK = '1' then
+                if EN = '1' then
+                    if LOAD = '1' then
+                        STATE <= D_IN & STATE(REG_NUMBER - 1 downto 1);
+                    end if;
                 end if;
             end if;
         end if;
     end process;
     
-    D_OUT <= Q;
+    D_OUT <= STATE;
 end RTL;

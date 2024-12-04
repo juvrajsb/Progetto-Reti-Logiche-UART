@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity TRANSMITTER is
     port(
-        CLK: in std_logic;
+        CLK_X16: in std_logic;
         EN: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic_vector(7 downto 0);
@@ -16,6 +16,14 @@ entity TRANSMITTER is
 end TRANSMITTER;
 
 architecture RTL of TRANSMITTER is
+    component CLK_DIV_16 is
+    port(
+        CLK_X16: in std_logic;
+        RST: in std_logic;
+        CLK_X1: out std_logic
+    );
+    end component;
+    
     component PAR_7 is
         port(
             DATA: in std_logic_vector(6 downto 0);
@@ -51,11 +59,23 @@ architecture RTL of TRANSMITTER is
         BIT_TO_SEND: out std_logic
     );
 end component;
+    signal CLK_X1: std_logic;
     signal PAR_BIT: std_logic;
     signal PS_REG_DATA: std_logic_vector(7 downto 0);
     signal PS_REG_SHIFT_BIT: std_logic;
     signal PS_REG_LOAD: std_logic;
 begin
+    -- INPUT AND OUTPUT REGISTERS
+    
+    
+    -- CLOCK DIVISION
+    CLK_DIV: CLK_DIV_16
+    port map(
+        CLK_X16 => CLK_X16,
+        RST => RST,
+        CLK_X1 => CLK_X1
+    );
+
     -- INPUT ELABORATION + SELECTION BASED ON LEN AND PARITY
     PARITY_CALC: PAR_7
     port map(
@@ -70,7 +90,7 @@ begin
     -- SAVE ELABORATED INPUT
     REG: REG_PS
     port map(
-        CLK => CLK,
+        CLK => CLK_X1,
         EN => EN,
         RST => RST,
         D_IN => PS_REG_DATA,
@@ -81,7 +101,7 @@ begin
     -- MANAGE TRASMISSION USING A FSM
     FSM: TX_FSM
     port map(
-        CLK => CLK,
+        CLK => CLK_X1,
         EN => EN,
         RST => RST,
         PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,

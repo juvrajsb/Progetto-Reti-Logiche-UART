@@ -24,13 +24,15 @@ begin
     begin
         if RST = '1' then
             Q <= (others => '0');
-        elsif CLK'event and CLK = '1' then
-            if EN = '1' then
-                if LOAD = '1' then
-                    Q <= D_IN & '0'; -- Add an empty bit to avoid loss of D_IN(0) after the first right shift
-                else
-                    -- Right shift
-                    Q <= '0' & Q(REG_NUMBER downto 1);
+        else
+            if CLK'event and CLK = '1' then
+                if EN = '1' then
+                    if LOAD = '1' then
+                        Q <= D_IN & '0'; -- Add an empty bit to avoid loss of D_IN(0) after the first right shift
+                    else
+                        -- Right shift
+                        Q <= '0' & Q(REG_NUMBER downto 1);
+                    end if;
                 end if;
             end if;
         end if;

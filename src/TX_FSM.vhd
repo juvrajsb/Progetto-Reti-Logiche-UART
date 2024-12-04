@@ -9,7 +9,8 @@ entity TX_FSM is
         START: in std_logic;
         CTS: in std_logic;
         PS_REG_LOAD: out std_logic;
-        BIT_TO_SEND: out std_logic
+        BIT_TO_SEND: out std_logic;
+        BUSY: out std_logic
     );
 end TX_FSM;
 

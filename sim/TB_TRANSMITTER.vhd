@@ -17,11 +17,12 @@ architecture BHV of TB_TRANSMITTER is
                 CTS: in std_logic;
                 LEN: in std_logic;
                 PARITY: in std_logic;
-                TX: out std_logic
+                TX: out std_logic;
+                BUSY: out std_logic
             );
     end component;
     
-    signal CLK_X16, EN, RST, START, CTS, LEN, PARITY, TX: std_logic;
+    signal CLK_X16, EN, RST, START, CTS, LEN, PARITY, TX, BUSY: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
@@ -34,7 +35,8 @@ begin
         CTS => CTS,
         LEN => LEN,
         PARITY => PARITY,
-        TX => TX
+        TX => TX,
+        BUSY => BUSY
     );
     
     CLK_GEN: process is

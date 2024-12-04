@@ -11,7 +11,8 @@ entity TRANSMITTER is
         CTS: in std_logic;
         LEN: in std_logic;
         PARITY: in std_logic;
-        TX: out std_logic
+        TX: out std_logic;
+        BUSY: out std_logic
     );
 end TRANSMITTER;
 
@@ -56,7 +57,8 @@ architecture RTL of TRANSMITTER is
         START: in std_logic;
         CTS: in std_logic;
         PS_REG_LOAD: out std_logic;
-        BIT_TO_SEND: out std_logic
+        BIT_TO_SEND: out std_logic;
+        BUSY: out std_logic
     );
 end component;
     signal CLK_X1: std_logic;
@@ -108,6 +110,7 @@ begin
         START => START,
         CTS => CTS,
         PS_REG_LOAD => PS_REG_LOAD,
-        BIT_TO_SEND => TX
+        BIT_TO_SEND => TX,
+        BUSY => BUSY
     );
 end RTL;

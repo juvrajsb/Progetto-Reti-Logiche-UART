@@ -21,20 +21,22 @@ begin
     begin
         if RST = '1' then
             Q <= (others => '0');
-        elsif CLK'event and CLK = '1' then
-            if EN = '1' then
-                if Q = "0000" then
-                    if START = '1' and CTS = '1' then
-                        Q <= "0001";
+        else
+            if CLK'event and CLK = '1' then
+                if EN = '1' then
+                    if Q = "0000" then
+                        if START = '1' and CTS = '1' then
+                            Q <= "0001";
+                        end if;
+                    elsif Q /= "1001" then
+                        -- Q+1 without using arithmetical operators
+                        Q(0) <= not Q(0);
+                        Q(1) <= Q(1) xor Q(0);
+                        Q(2) <= Q(2) xor (Q(1) and Q(0));
+                        Q(3) <= Q(3) xor (Q(2) and Q(1) and Q(0));
+                    else
+                        Q <= "0000";
                     end if;
-                elsif Q /= "1001" then
-                    -- Q+1 without using arithmetical operators
-                    Q(0) <= not Q(0);
-                    Q(1) <= Q(1) xor Q(0);
-                    Q(2) <= Q(2) xor (Q(1) and Q(0));
-                    Q(3) <= Q(3) xor (Q(2) and Q(1) and Q(0));
-                else
-                    Q <= "0000";
                 end if;
             end if;
         end if;

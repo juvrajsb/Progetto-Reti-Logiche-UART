@@ -10,7 +10,6 @@ architecture BHV of TB_TRANSMITTER is
     component TRANSMITTER is
             port(
                 CLK_X16: in std_logic;
-                EN: in std_logic;
                 RST: in std_logic;
                 D_IN: in std_logic_vector(7 downto 0);
                 START: in std_logic;
@@ -22,13 +21,12 @@ architecture BHV of TB_TRANSMITTER is
             );
     end component;
     
-    signal CLK_X16, EN, RST, START, CTS, LEN, PARITY, TX, BUSY: std_logic;
+    signal CLK_X16, RST, START, CTS, LEN, PARITY, TX, BUSY: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
     port map(
         CLK_X16 => CLK_X16,
-        EN => EN,
         RST => RST,
         D_IN => D_IN,
         START => START,
@@ -55,7 +53,6 @@ begin
         wait for (CLK_PERIOD * 16) * 5;
         
         -- TESTS
-        EN <= '1';
         RST <= '0';
         D_IN <= "00000000";
         START <= '0';
@@ -65,7 +62,6 @@ begin
 
         wait for (CLK_PERIOD * 16);
         
-        EN <= '1';
         RST <= '0';
         D_IN <= "01000101";
         START <= '1';
@@ -74,7 +70,6 @@ begin
         PARITY <= '1';
         wait for(CLK_PERIOD * 16) * 9;
         
-        EN <= '1';
         RST <= '0';
         D_IN <= "01111001";
         START <= '1';
@@ -83,7 +78,6 @@ begin
         PARITY <= '0';
         wait for (CLK_PERIOD * 16) * 5;
         
-        EN <= '1';
         RST <= '0';
         D_IN <= "01110001";
         START <= '1';
@@ -92,7 +86,6 @@ begin
         PARITY <= '1';
         wait for (CLK_PERIOD * 16) * 7;
         
-        EN <= '1';
         RST <= '0';
         D_IN <= "01110001";
         START <= '0';
@@ -101,7 +94,6 @@ begin
         PARITY <= '1';
         wait for (CLK_PERIOD * 16);
         
-        EN <= '1';
         RST <= '0';
         D_IN <= "01110001";
         START <= '1';

@@ -4,7 +4,6 @@ use IEEE.STD_LOGIC_1164.ALL;
 entity TRANSMITTER is
     port(
         CLK_X16: in std_logic;
-        EN: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic_vector(7 downto 0);
         START: in std_logic;
@@ -69,7 +68,6 @@ end component;
 begin
     -- INPUT AND OUTPUT REGISTERS
     
-    
     -- CLOCK DIVISION
     CLK_DIV: CLK_DIV_16
     port map(
@@ -93,7 +91,7 @@ begin
     REG: REG_PS
     port map(
         CLK => CLK_X1,
-        EN => EN,
+        EN => '1',
         RST => RST,
         D_IN => PS_REG_DATA,
         LOAD => PS_REG_LOAD,
@@ -104,7 +102,7 @@ begin
     FSM: TX_FSM
     port map(
         CLK => CLK_X1,
-        EN => EN,
+        EN => '1',
         RST => RST,
         PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,
         START => START,

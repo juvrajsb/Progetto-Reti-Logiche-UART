@@ -5,7 +5,7 @@ entity TB_TRANSMITTER is
 end TB_TRANSMITTER;
 
 architecture BHV of TB_TRANSMITTER is
-    constant CLK_PERIOD: time := 1 ns;
+    constant CLK_PERIOD: time := 2 ns;
 
     component TRANSMITTER is
             port(

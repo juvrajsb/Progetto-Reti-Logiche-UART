@@ -16,6 +16,30 @@ entity TRANSMITTER is
 end TRANSMITTER;
 
 architecture RTL of TRANSMITTER is
+    component FF_D is
+    port(
+        CLK: in std_logic;
+        EN: in std_logic;
+        RST: in std_logic;
+        D: in std_logic;
+        Q: out std_logic
+    );
+    end component;
+    
+    component REG_PP is
+        generic(
+            REG_NUMBER: integer := 8
+        );
+        
+        port(
+            CLK: in std_logic;
+            EN: in std_logic;
+            RST: in std_logic;
+            D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
+            D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
+        );
+    end component;
+    
     component CLK_DIV_16 is
     port(
         CLK_X16: in std_logic;
@@ -60,13 +84,77 @@ architecture RTL of TRANSMITTER is
         BUSY: out std_logic
     );
 end component;
-    signal CLK_X1: std_logic;
-    signal PAR_BIT: std_logic;
+    -- INPUT AND OUTPUT RELATED SIGNALS
+    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, BUSY_FF_INPUT: std_logic;
+    signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
+    
+    -- INTERNAL SIGNALS
+    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD: std_logic;
     signal PS_REG_DATA: std_logic_vector(7 downto 0);
-    signal PS_REG_SHIFT_BIT: std_logic;
-    signal PS_REG_LOAD: std_logic;
 begin
     -- INPUT AND OUTPUT REGISTERS
+    D_IN_REG: REG_PP
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D_IN => D_IN,
+        D_OUT => D_IN_SAMPLE
+    );
+    
+    START_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => START,
+        Q => START_SAMPLE
+    );
+    
+    CTS_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => CTS,
+        Q => CTS_SAMPLE
+    );
+    
+    LEN_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => LEN,
+        Q => LEN_SAMPLE
+    );
+    
+    PARITY_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => PARITY,
+        Q => PARITY_SAMPLE
+    );
+    
+    TX_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => TX_FF_INPUT,
+        Q => TX
+    );
+    
+    BUSY_FF: FF_D
+    port map(
+        CLK => CLK_X1,
+        EN => '1',
+        RST => RST,
+        D => BUSY_FF_INPUT,
+        Q => BUSY
+    );
     
     -- CLOCK DIVISION
     CLK_DIV: CLK_DIV_16
@@ -79,13 +167,13 @@ begin
     -- INPUT ELABORATION + SELECTION BASED ON LEN AND PARITY
     PARITY_CALC: PAR_7
     port map(
-        DATA => D_IN(6 downto 0),
-        ODD_MODE => PARITY,
+        DATA => D_IN_SAMPLE(6 downto 0),
+        ODD_MODE => PARITY_SAMPLE,
         PAR_BIT => PAR_BIT
     );
     
-    PS_REG_DATA <= (PAR_BIT & D_IN(6 downto 0)) when LEN = '0' else
-                   D_IN;
+    PS_REG_DATA <= (PAR_BIT & D_IN_SAMPLE(6 downto 0)) when LEN_SAMPLE = '0' else
+                   D_IN_SAMPLE;
     
     -- SAVE ELABORATED INPUT
     REG: REG_PS
@@ -105,10 +193,10 @@ begin
         EN => '1',
         RST => RST,
         PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,
-        START => START,
-        CTS => CTS,
+        START => START_SAMPLE,
+        CTS => CTS_SAMPLE,
         PS_REG_LOAD => PS_REG_LOAD,
-        BIT_TO_SEND => TX,
-        BUSY => BUSY
+        BIT_TO_SEND => TX_FF_INPUT,
+        BUSY => BUSY_FF_INPUT
     );
 end RTL;

@@ -5,11 +5,11 @@ entity TB_TRANSMITTER is
 end TB_TRANSMITTER;
 
 architecture BHV of TB_TRANSMITTER is
-    constant CLK_PERIOD: time := 20 ns;
+    constant CLK_PERIOD: time := 1 ns;
 
     component TRANSMITTER is
             port(
-                CLK: in std_logic;
+                CLK_X16: in std_logic;
                 EN: in std_logic;
                 RST: in std_logic;
                 D_IN: in std_logic_vector(7 downto 0);
@@ -21,12 +21,12 @@ architecture BHV of TB_TRANSMITTER is
             );
     end component;
     
-    signal CLK, EN, RST, START, CTS, LEN, PARITY, TX: std_logic;
+    signal CLK_X16, EN, RST, START, CTS, LEN, PARITY, TX: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
     port map(
-        CLK => CLK,
+        CLK_X16 => CLK_X16,
         EN => EN,
         RST => RST,
         D_IN => D_IN,
@@ -39,10 +39,10 @@ begin
     
     CLK_GEN: process is
     begin
-        CLK <= '0';
+        CLK_X16 <= '0';
         wait for CLK_PERIOD / 2;
         
-        CLK <= '1';
+        CLK_X16 <= '1';
         wait for CLK_PERIOD / 2;
     end process;
     
@@ -50,7 +50,7 @@ begin
     begin
         -- RESET
         RST <= '1';
-        wait for CLK_PERIOD * 5;
+        wait for (CLK_PERIOD * 16) * 5;
         
         -- TESTS
         EN <= '1';
@@ -61,7 +61,7 @@ begin
         LEN <= '1';
         PARITY <= '0';
 
-        wait for CLK_PERIOD;
+        wait for (CLK_PERIOD * 16);
         
         EN <= '1';
         RST <= '0';
@@ -70,7 +70,7 @@ begin
         CTS <= '1';
         LEN <= '1';
         PARITY <= '1';
-        wait for CLK_PERIOD * 9;
+        wait for(CLK_PERIOD * 16) * 9;
         
         EN <= '1';
         RST <= '0';
@@ -79,7 +79,7 @@ begin
         CTS <= '1';
         LEN <= '0';
         PARITY <= '0';
-        wait for CLK_PERIOD * 5;
+        wait for (CLK_PERIOD * 16) * 5;
         
         EN <= '1';
         RST <= '0';
@@ -88,7 +88,7 @@ begin
         CTS <= '0';
         LEN <= '0';
         PARITY <= '1';
-        wait for CLK_PERIOD * 7;
+        wait for (CLK_PERIOD * 16) * 7;
         
         EN <= '1';
         RST <= '0';
@@ -97,7 +97,7 @@ begin
         CTS <= '1';
         LEN <= '0';
         PARITY <= '1';
-        wait for CLK_PERIOD;
+        wait for (CLK_PERIOD * 16);
         
         EN <= '1';
         RST <= '0';
@@ -106,7 +106,7 @@ begin
         CTS <= '1';
         LEN <= '0';
         PARITY <= '1';
-        wait for CLK_PERIOD;
+        wait for (CLK_PERIOD * 16);
         
         wait;
     end process;

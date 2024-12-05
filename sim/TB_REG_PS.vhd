@@ -8,7 +8,7 @@ entity TB_REG_PS is
 end TB_REG_PS;
 
 architecture BHV of TB_REG_PS is
-    constant REG_NUMBER: integer := 9;
+    constant REG_NUMBER: integer := 8;
     
     component REG_PS is
         port(
@@ -60,7 +60,7 @@ begin
         EN <= '1';
         RST <= '0';
         LOAD <= '1';
-        D_IN <= "101010100";
+        D_IN <= "01010100";
         wait for CLK_PERIOD; 
         
         LOAD <= '0';
@@ -69,19 +69,19 @@ begin
         EN <= '1';
         RST <= '0';
         LOAD <= '1';
-        D_IN <= "000001110";
+        D_IN <= "00001110";
         wait for CLK_PERIOD * 5;
         
         EN <= '1';
         RST <= '0';
         LOAD <= '0';
-        D_IN <= "000001110";
+        D_IN <= "00001110";
         wait for CLK_PERIOD * (REG_NUMBER / 2);
         
         EN <= '0';
         RST <= '0';
         LOAD <= '1';
-        D_IN <= "000001110";
+        D_IN <= "00001110";
         wait;
     end process;
 end BHV;

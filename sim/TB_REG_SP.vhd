@@ -2,10 +2,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_REG_SP is
+    generic(
+        CLK_PERIOD: time := 20 ns
+    );
 end TB_REG_SP;
 
 architecture BHV of TB_REG_SP is
-    constant CLK_PERIOD: time := 20 ns;
     constant REG_NUMBER: integer := 8;
     
     component REG_SP is
@@ -16,6 +18,16 @@ architecture BHV of TB_REG_SP is
             LOAD: in std_logic;
             D_IN: in std_logic;
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
+        );
+    end component;
+    
+    component CLK_GEN is
+        generic(
+            CLK_PERIOD: time
+        );
+        
+        port(
+            CLK: out std_logic
         );
     end component;
     
@@ -32,14 +44,13 @@ begin
         D_OUT => D_OUT
     );
     
-    CLK_GEN: process is
-    begin
-        CLK <= '0';
-        wait for CLK_PERIOD / 2;
-        
-        CLK <= '1';
-        wait for CLK_PERIOD / 2;
-    end process;
+    CLOCK_GENERATOR: CLK_GEN
+    generic map(
+        CLK_PERIOD => CLK_PERIOD
+    )
+    port map(
+        CLK => CLK
+    );
     
     SIM: process is
     begin

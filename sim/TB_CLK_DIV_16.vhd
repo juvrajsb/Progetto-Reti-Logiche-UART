@@ -2,6 +2,9 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_CLK_DIV_16 is
+    generic(
+        CLK_PERIOD: time := 10 ns
+    );
 end TB_CLK_DIV_16;
 
 architecture BHV of TB_CLK_DIV_16 is
@@ -12,8 +15,16 @@ architecture BHV of TB_CLK_DIV_16 is
             CLK_X1: out std_logic
         );
     end component;
-
-    constant CLK_PERIOD: time := 10 ns;
+    
+    component CLK_GEN is
+        generic(
+            CLK_PERIOD: time
+        );
+        
+        port(
+            CLK: out std_logic
+        );
+    end component;
     
     signal CLK_X16: std_logic;
     signal RST: std_logic;
@@ -26,16 +37,15 @@ begin
             CLK_X1 => CLK_X1
         );
 
-    CLK_PROCESS: process
-    begin
-        CLK_X16 <= '0';
-        wait for CLK_PERIOD / 2;
-        
-        CLK_X16 <= '1';
-        wait for CLK_PERIOD / 2;
-    end process;
+    CLOCK_GENERATOR: CLK_GEN
+    generic map(
+        CLK_PERIOD => CLK_PERIOD
+    )
+    port map(
+        CLK => CLK_X16
+    );
 
-    STIM_PROC: process
+    SIM: process
     begin
         RST <= '1';
         wait for CLK_PERIOD * 10;

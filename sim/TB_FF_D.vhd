@@ -2,11 +2,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_FF_D is
+    generic(
+        CLK_PERIOD: time := 10 ns
+    );
 end TB_FF_D;
 
 architecture BHV of TB_FF_D is
-    constant CLK_PERIOD: time := 10 ns;
-    
     component FF_D is
         port(
             CLK: in std_logic;
@@ -14,6 +15,16 @@ architecture BHV of TB_FF_D is
             RST: in std_logic;
             D: in std_logic;
             Q: out std_logic
+        );
+    end component;
+    
+    component CLK_GEN is
+        generic(
+            CLK_PERIOD: time
+        );
+        
+        port(
+            CLK: out std_logic
         );
     end component;
     
@@ -28,14 +39,13 @@ begin
         Q => Q
     );
     
-    CLK_GEN: process is
-    begin
-        CLK <= '0';
-        wait for CLK_PERIOD / 2;
-        
-        CLK <= '1';
-        wait for CLK_PERIOD / 2;
-    end process;
+    CLOCK_GENERATOR: CLK_GEN
+    generic map(
+        CLK_PERIOD => CLK_PERIOD
+    )
+    port map(
+        CLK => CLK
+    );
     
     SIM: process is
     begin

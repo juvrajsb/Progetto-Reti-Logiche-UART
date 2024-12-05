@@ -2,10 +2,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_COUNTER is
+    generic(
+        CLK_PERIOD: time := 20ns
+    );
 end TB_COUNTER;
 
 architecture BHV of TB_COUNTER is
-    constant CLK_PERIOD: time := 20ns;
     constant REQUIRED_BITS: integer := 4;
 
     component COUNTER is
@@ -15,6 +17,16 @@ architecture BHV of TB_COUNTER is
             RST: in std_logic;
             REF: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
             CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
+        );
+    end component;
+    
+    component CLK_GEN is
+        generic(
+            CLK_PERIOD: time
+        );
+        
+        port(
+            CLK: out std_logic
         );
     end component;
     
@@ -30,14 +42,13 @@ begin
         CNT => CNT
     );
     
-    CLK_GEN: process is
-    begin
-        CLK <= '0';
-        wait for CLK_PERIOD / 2;
-        
-        CLK <= '1';
-        wait for CLK_PERIOD / 2;
-    end process;
+    CLOCK_GENERATOR: CLK_GEN
+    generic map(
+        CLK_PERIOD => CLK_PERIOD
+    )
+    port map(
+        CLK => CLK
+    );
     
     SIM: process is
     begin       

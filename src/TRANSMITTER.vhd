@@ -58,7 +58,7 @@ architecture RTL of TRANSMITTER is
     
     component REG_PS is
         generic(
-            REG_NUMBER: integer := 9
+            REG_NUMBER: integer := 8
         );
         
         port(
@@ -113,6 +113,9 @@ architecture RTL of TRANSMITTER is
 begin
     -- INPUT AND OUTPUT REGISTERS
     D_IN_REG: REG_PP
+    generic map(
+        REG_NUMBER => 8
+    )
     port map(
         CLK => CLK_X1,
         EN => '1',
@@ -196,6 +199,9 @@ begin
     
     -- SAVE ELABORATED INPUT
     REG: REG_PS
+    generic map(
+        REG_NUMBER => 9
+    )
     port map(
         CLK => CLK_X1,
         EN => '1',

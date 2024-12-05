@@ -2,11 +2,12 @@ library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_TRANSMITTER is
+    generic(
+        CLK_PERIOD: time := 2 ns
+    );
 end TB_TRANSMITTER;
 
 architecture BHV of TB_TRANSMITTER is
-    constant CLK_PERIOD: time := 2 ns;
-
     component TRANSMITTER is
             port(
                 CLK_X16: in std_logic;
@@ -19,6 +20,16 @@ architecture BHV of TB_TRANSMITTER is
                 TX: out std_logic;
                 BUSY: out std_logic
             );
+    end component;
+    
+    component CLK_GEN is
+        generic(
+            CLK_PERIOD: time
+        );
+        
+        port(
+            CLK: out std_logic
+        );
     end component;
     
     signal CLK_X16, RST, START, CTS, LEN, PARITY, TX, BUSY: std_logic;
@@ -37,14 +48,13 @@ begin
         BUSY => BUSY
     );
     
-    CLK_GEN: process is
-    begin
-        CLK_X16 <= '0';
-        wait for CLK_PERIOD / 2;
-        
-        CLK_X16 <= '1';
-        wait for CLK_PERIOD / 2;
-    end process;
+    CLOCK_GENERATOR: CLK_GEN
+    generic map(
+        CLK_PERIOD => CLK_PERIOD
+    )
+    port map(
+        CLK => CLK_X16
+    );
     
     SIM: process is
     begin

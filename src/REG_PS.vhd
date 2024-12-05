@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity REG_PS is
     generic(
-        REG_NUMBER: integer := 9
+        REG_NUMBER: integer := 8
     );
     
     port(

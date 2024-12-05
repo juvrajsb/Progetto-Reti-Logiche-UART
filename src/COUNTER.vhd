@@ -16,13 +16,13 @@ entity COUNTER is
 end COUNTER;
 
 architecture RTL of COUNTER is
-    component FF_T is
+    component FF_JK is
         port(
             CLK: in std_logic;
             EN: in std_logic;
-            ASYNC_RST: in std_logic;
-            SYNC_RST: in std_logic;
-            T: in std_logic;
+            RST: in std_logic;
+            J: in std_logic;
+            K: in std_logic;
             Q: out std_logic
         );
     end component;
@@ -39,24 +39,29 @@ architecture RTL of COUNTER is
         );
     end component;
     
-    signal TRIGGER_SIGNALS: std_logic_vector(REQUIRED_BITS downto 0);
+    signal J_SIGNALS, K_SIGNALS: std_logic_vector(REQUIRED_BITS downto 0);
     signal STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
-    signal SYNC_RST: std_logic;
+    signal RESTART_COUNT: std_logic;
 begin
-    TRIGGER_SIGNALS(0) <= '1';
+    J_SIGNALS(0) <= '1';
+    K_SIGNALS(0) <= '1';
     
     FF_T_GEN: for I in 0 to REQUIRED_BITS - 1 generate
-        FF: FF_T
+        FF: FF_JK
         port map(
             CLK => CLK,
             EN => EN,
-            ASYNC_RST => RST,
-            SYNC_RST => SYNC_RST,
-            T => TRIGGER_SIGNALS(I),
+            RST => RST,
+            J => J_SIGNALS(I),
+            K => K_SIGNALS(I),
             Q => STATE(I)
         );
         
-        TRIGGER_SIGNALS(I+1) <= STATE(I) and TRIGGER_SIGNALS(I);
+        -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when REF is reached
+        J_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I) and K_SIGNALS(I)) when RESTART_COUNT = '0' else
+                          '0';
+        K_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I) and K_SIGNALS(I)) when RESTART_COUNT = '0' else
+                          '1';
     end generate;
     
     REF_COMPARATOR: COMPARATOR
@@ -66,7 +71,7 @@ begin
     port map(
         INPUT_1 => STATE,
         INPUT_2 => REF,
-        EQUAL => SYNC_RST
+        EQUAL => RESTART_COUNT
     );
     
     CNT <= STATE;

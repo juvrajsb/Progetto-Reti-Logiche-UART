@@ -14,6 +14,7 @@ architecture RTL of CLK_DIV_16 is
         port(
             CLK: in std_logic;
             EN: in std_logic;
+            SET: in std_logic;
             RST: in std_logic;
             D: in std_logic;
             Q: out std_logic
@@ -32,6 +33,7 @@ begin
     FF0: FF_D port map(
         CLK => CLK_x16,
         EN => '1',
+        SET => '0',
         RST => RST,
         D => FLIP_FLOP_D(0),
         Q => FLIP_FLOP_Q(0)
@@ -40,7 +42,8 @@ begin
     FF1: FF_D port map(
         CLK => FLIP_FLOP_Q(0),
         EN => '1',
-        RST => RST, 
+        SET => '0',
+        RST => RST,
         D => FLIP_FLOP_D(1),
         Q => FLIP_FLOP_Q(1)
     );
@@ -48,6 +51,7 @@ begin
     FF2: FF_D port map(
         CLK => FLIP_FLOP_Q(1),
         EN => '1',
+        SET => '0',
         RST => RST,
         D => FLIP_FLOP_D(2),
         Q => FLIP_FLOP_Q(2)
@@ -56,10 +60,11 @@ begin
     FF3: FF_D port map(
         CLK => FLIP_FLOP_Q(2),
         EN => '1',
+        SET => '0',
         RST => RST,
         D => FLIP_FLOP_D(3),
         Q => FLIP_FLOP_Q(3)
     );
     
-    CLK_X1 <= FLIP_FLOP_Q(3);
+    CLK_X1 <= FLIP_FLOP_Q(3) and FLIP_FLOP_Q(2) and FLIP_FLOP_Q(1) and FLIP_FLOP_Q(0);
 end RTL;

@@ -39,11 +39,11 @@ architecture RTL of COUNTER is
         );
     end component;
     
-    signal J_SIGNALS, K_SIGNALS: std_logic_vector(REQUIRED_BITS downto 0);
-    signal STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
+    signal J_SIGNALS, K_SIGNALS, STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
     signal RESTART_COUNT: std_logic;
 begin
-    J_SIGNALS(0) <= '1';
+    J_SIGNALS(0) <= '1' when RESTART_COUNT = '0' else
+                    '0';
     K_SIGNALS(0) <= '1';
     
     FF_T_GEN: for I in 0 to REQUIRED_BITS - 1 generate
@@ -56,11 +56,13 @@ begin
             K => K_SIGNALS(I),
             Q => STATE(I)
         );
-        
+    end generate;
+    
+    SIG_GEN: for I in 0 to REQUIRED_BITS - 2 generate
         -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when REF is reached
-        J_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I) and K_SIGNALS(I)) when RESTART_COUNT = '0' else
+        J_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I)) when RESTART_COUNT = '0' else
                           '0';
-        K_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I) and K_SIGNALS(I)) when RESTART_COUNT = '0' else
+        K_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I)) when RESTART_COUNT = '0' else
                           '1';
     end generate;
     

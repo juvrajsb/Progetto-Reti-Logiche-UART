@@ -12,6 +12,7 @@ architecture BHV of TB_FF_D is
         port(
             CLK: in std_logic;
             EN: in std_logic;
+            SET: in std_logic;
             RST: in std_logic;
             D: in std_logic;
             Q: out std_logic
@@ -28,12 +29,13 @@ architecture BHV of TB_FF_D is
         );
     end component;
     
-    signal CLK, EN, RST, D, Q: std_logic;
+    signal CLK, EN, SET, RST, D, Q: std_logic;
 begin
     UUT: FF_D
     port map(
         CLK => CLK,
         EN => EN,
+        SET => SET,
         RST => RST,
         D => D,
         Q => Q
@@ -49,24 +51,33 @@ begin
     
     SIM: process is
     begin
+        SET <= '1';
+        RST <= '0';
+        wait for CLK_PERIOD * 5;
+        
+        SET <= '0';
         RST <= '1';
         wait for CLK_PERIOD * 9.4;
         
         EN <= '1';
+        SET <= '0';
         RST <= '0';
         D <= '0';
         wait for CLK_PERIOD * 5;
         
         EN <= '1';
+        SET <= '0';
         RST <= '0';
         D <= '1';
         wait for CLK_PERIOD * 5;
         
         EN <= '0';
+        SET <= '0';
         RST <= '0';
         D <= '0';
         wait for CLK_PERIOD * 5;
         
+        SET <= '0';
         RST <= '1';
         wait;
     end process;

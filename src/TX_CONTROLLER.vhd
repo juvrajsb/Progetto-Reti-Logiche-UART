@@ -11,16 +11,16 @@ entity TX_CONTROLLER is
         PS_REG_SHIFT_BIT: in std_logic;
         START: in std_logic;
         CTS: in std_logic;
-        CNT_ENABLE: out std_logic;
+        CNT_START: out std_logic;
         PS_REG_LOAD: out std_logic;
         BIT_TO_SEND: out std_logic;
-        BUSY: out std_logic
+        TX_AVAILABLE: out std_logic
     );
 end TX_CONTROLLER;
 
 architecture RTL of TX_CONTROLLER is
 begin
-    CNT_ENABLE <= (START and CTS) when CNT_STATE = "0000" else
+    CNT_START <= (START and CTS) when CNT_STATE = "0000" else
                   '1';
     
     PS_REG_LOAD <= '1' when CNT_STATE = "0000" else
@@ -30,7 +30,7 @@ begin
                    '0' when CNT_STATE = "0001" else
                    PS_REG_SHIFT_BIT;
     
-    BUSY <= '0' when CNT_STATE = "0000" else
-            '1';
+    TX_AVAILABLE <= '1' when (CNT_STATE = "0000" or CNT_STATE = "1001") and CTS = '1' else
+            '0';
 end RTL;
 

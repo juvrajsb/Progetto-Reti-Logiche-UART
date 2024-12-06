@@ -11,7 +11,7 @@ entity TRANSMITTER is
         LEN: in std_logic;
         PARITY: in std_logic;
         TX: out std_logic;
-        BUSY: out std_logic
+        TX_AVAILABLE: out std_logic
     );
 end TRANSMITTER;
 
@@ -20,6 +20,7 @@ architecture RTL of TRANSMITTER is
     port(
         CLK: in std_logic;
         EN: in std_logic;
+        SET: in std_logic;
         RST: in std_logic;
         D: in std_logic;
         Q: out std_logic
@@ -95,19 +96,19 @@ architecture RTL of TRANSMITTER is
             PS_REG_SHIFT_BIT: in std_logic;
             START: in std_logic;
             CTS: in std_logic;
-            CNT_ENABLE: out std_logic;
+            CNT_START: out std_logic;
             PS_REG_LOAD: out std_logic;
             BIT_TO_SEND: out std_logic;
-            BUSY: out std_logic
+            TX_AVAILABLE: out std_logic
         );
     end component;
     
     -- INPUT AND OUTPUT RELATED SIGNALS
-    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, BUSY_FF_INPUT: std_logic;
+    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
-    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_ENABLE: std_logic;
+    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_START, CNT_ENABLE: std_logic;
     signal CNT_STATE: std_logic_vector(3 downto 0);
     signal PS_REG_DATA: std_logic_vector(8 downto 0);
 begin
@@ -117,8 +118,8 @@ begin
         REG_NUMBER => 8
     )
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
         RST => RST,
         D_IN => D_IN,
         D_OUT => D_IN_SAMPLE
@@ -126,8 +127,9 @@ begin
     
     START_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => '0',
         RST => RST,
         D => START,
         Q => START_SAMPLE
@@ -135,8 +137,9 @@ begin
     
     CTS_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => '0',
         RST => RST,
         D => CTS,
         Q => CTS_SAMPLE
@@ -144,8 +147,9 @@ begin
     
     LEN_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => '0',
         RST => RST,
         D => LEN,
         Q => LEN_SAMPLE
@@ -153,8 +157,9 @@ begin
     
     PARITY_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => '0',
         RST => RST,
         D => PARITY,
         Q => PARITY_SAMPLE
@@ -162,20 +167,22 @@ begin
     
     TX_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
-        RST => RST,
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => RST,
+        RST => '0',
         D => TX_FF_INPUT,
         Q => TX
     );
     
-    BUSY_FF: FF_D
+    TX_AVAILABLE_FF: FF_D
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
+        SET => '0',
         RST => RST,
-        D => BUSY_FF_INPUT,
-        Q => BUSY
+        D => TX_AVAILABLE_FF_INPUT,
+        Q => TX_AVAILABLE
     );
     
     -- CLOCK DIVISION
@@ -203,8 +210,8 @@ begin
         REG_NUMBER => 9
     )
     port map(
-        CLK => CLK_X1,
-        EN => '1',
+        CLK => CLK_X16,
+        EN => CLK_X1,
         RST => RST,
         D_IN => PS_REG_DATA,
         LOAD => PS_REG_LOAD,
@@ -217,12 +224,14 @@ begin
         REQUIRED_BITS => 4
     )
     port map(
-        CLK => CLK_X1,
+        CLK => CLK_X16,
         EN => CNT_ENABLE,
         RST => RST,
         REF => "1001", -- Last number in counter sequence
         CNT => CNT_STATE
     );
+    
+    CNT_ENABLE <= CLK_X1 and CNT_START;
     
     CONTROLLER: TX_CONTROLLER
     generic map(
@@ -233,9 +242,9 @@ begin
         PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,
         START => START_SAMPLE,
         CTS => CTS_SAMPLE,
-        CNT_ENABLE => CNT_ENABLE,
+        CNT_START => CNT_START,
         PS_REG_LOAD => PS_REG_LOAD,
         BIT_TO_SEND => TX_FF_INPUT,
-        BUSY => BUSY_FF_INPUT
+        TX_AVAILABLE => TX_AVAILABLE_FF_INPUT
     );
 end RTL;

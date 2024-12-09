@@ -30,7 +30,7 @@ begin
                    '0' when CNT_STATE = "0001" else
                    PS_REG_SHIFT_BIT;
     
-    TX_AVAILABLE <= '1' when (CNT_STATE = "0000" or CNT_STATE = "1001") and CTS = '1' else
-            '0';
+    TX_AVAILABLE <= '1' when ((CNT_STATE = "0000" and START = '0') or CNT_STATE = "1001") and CTS = '1' else
+                    '0';
 end RTL;
 

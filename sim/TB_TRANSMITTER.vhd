@@ -63,23 +63,23 @@ begin
         RST <= '1';
         D_IN <= "00000000";
         START <= '0';
-        CTS <= '0';
+        CTS <= '1';
         LEN <= '0';
         PARITY <= '0';
-        wait for (CLK_PERIOD * 16) * 5.5;
+        wait for (CLK_PERIOD * 16) * 5;
         RST <= '0';
-        wait for (CLK_PERIOD * 16) * 0.5;
         
-        -- CTS INITIALISATION
-        CTS <= '1';
+        -- UNATHORIZED START REJECTION TEST
+        START <= '1';
+        wait for (CLK_PERIOD * 16);
+        START <= '0';
         
         -- SIMULATION WITH 8 BIT DATA
+        wait for (CLK_PERIOD * 16) * 6;
         LEN <= '1';
-        
         D_IN <= "01000101";
         
-        wait until TX_AVAILABLE = '1';
-        wait for START_DELAY;
+        wait for (CLK_PERIOD * 16) + START_DELAY;
         START <= '1';
         wait until TX_AVAILABLE = '0';
         wait for START_DELAY;
@@ -97,19 +97,18 @@ begin
         wait for START_DELAY;
         START <= '0';
         
-        -- SAME SIMULATION WITH ANTICIPATED AND SHORT START
+        -- SAME SIMULATION WITH ANTICIPATED START
         wait for (CLK_PERIOD * 16) * 6.5 - START_DELAY;
         START <= '1';
-        wait for (CLK_PERIOD * 16) * 1;
-        wait for START_DELAY;
+        wait for (CLK_PERIOD * 16) * 4;
         START <= '0';
         
         -- SIMULATION WITH 7 BIT DATA + ODD PARITY BIT + CTS OFF
-        wait for (CLK_PERIOD * 16) * 0.5 - START_DELAY;
+        wait for (CLK_PERIOD * 16) * 0.5;
         D_IN <= "01110001";
         
         CTS <= '0';
-        wait for (CLK_PERIOD * 16) * 12;
+        wait for (CLK_PERIOD * 16) * 30;
         CTS <= '1';
         
         wait until TX_AVAILABLE = '1';

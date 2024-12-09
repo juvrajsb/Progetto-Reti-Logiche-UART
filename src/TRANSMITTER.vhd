@@ -104,7 +104,7 @@ architecture RTL of TRANSMITTER is
     end component;
     
     -- INPUT AND OUTPUT RELATED SIGNALS
-    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
+    signal START_FF_INPUT, START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
@@ -131,7 +131,7 @@ begin
         EN => CLK_X1,
         SET => '0',
         RST => RST,
-        D => START,
+        D => START_FF_INPUT,
         Q => START_SAMPLE
     );
     
@@ -231,8 +231,6 @@ begin
         CNT => CNT_STATE
     );
     
-    CNT_ENABLE <= CLK_X1 and CNT_START;
-    
     CONTROLLER: TX_CONTROLLER
     generic map(
         COUNTER_BITS => 4
@@ -247,4 +245,7 @@ begin
         BIT_TO_SEND => TX_FF_INPUT,
         TX_AVAILABLE => TX_AVAILABLE_FF_INPUT
     );
+    
+    START_FF_INPUT <= START and TX_AVAILABLE_FF_INPUT;
+    CNT_ENABLE <= CLK_X1 and CNT_START;
 end RTL;

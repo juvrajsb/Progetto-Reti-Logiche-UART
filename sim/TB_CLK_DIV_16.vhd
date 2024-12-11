@@ -10,9 +10,9 @@ end TB_CLK_DIV_16;
 architecture BHV of TB_CLK_DIV_16 is
     component CLK_DIV_16
         port(
-            CLK_X16: in std_logic;
+            CLK_IN: in std_logic;
             RST: in std_logic;
-            CLK_X1: out std_logic
+            CLK_OUT: out std_logic
         );
     end component;
     
@@ -26,15 +26,15 @@ architecture BHV of TB_CLK_DIV_16 is
         );
     end component;
     
-    signal CLK_X16: std_logic;
+    signal CLK_IN: std_logic;
     signal RST: std_logic;
-    signal CLK_X1: std_logic;
+    signal CLK_OUT: std_logic;
 begin
     UUT: CLK_DIV_16
         port map (
-            CLK_X16 => CLK_X16,
+            CLK_IN => CLK_IN,
             RST => RST,
-            CLK_X1 => CLK_X1
+            CLK_OUT => CLK_OUT
         );
 
     CLOCK_GENERATOR: CLK_GEN
@@ -42,7 +42,7 @@ begin
         CLK_PERIOD => CLK_PERIOD
     )
     port map(
-        CLK => CLK_X16
+        CLK => CLK_IN
     );
 
     SIM: process

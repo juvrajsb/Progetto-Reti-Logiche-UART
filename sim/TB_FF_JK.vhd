@@ -21,7 +21,8 @@ architecture BHV of TB_FF_JK is
     
     component CLK_GEN is
         generic(
-            CLK_PERIOD: time
+            CLK_PERIOD: time;
+            CLK_START: time
         );
         
         port(
@@ -43,7 +44,8 @@ begin
     
     CLOCK_GENERATOR: CLK_GEN
     generic map(
-        CLK_PERIOD => CLK_PERIOD
+        CLK_PERIOD => CLK_PERIOD,
+        CLK_START => 0 ns
     )
     port map(
         CLK => CLK

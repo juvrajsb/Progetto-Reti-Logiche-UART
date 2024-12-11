@@ -25,7 +25,8 @@ architecture BHV of TB_TRANSMITTER is
     
     component CLK_GEN is
         generic(
-            CLK_PERIOD: time
+            CLK_PERIOD: time;
+            CLK_START: time
         );
         
         port(
@@ -33,7 +34,9 @@ architecture BHV of TB_TRANSMITTER is
         );
     end component;
     
-    signal CLK, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
+    constant RST_TIME: time := (CLK_PERIOD * 16) * 4.2;
+    
+    signal CLK, CLK_DIV_16_NO_DELAY, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
@@ -51,11 +54,29 @@ begin
     
     CLOCK_GENERATOR: CLK_GEN
     generic map(
-        CLK_PERIOD => CLK_PERIOD
+        CLK_PERIOD => CLK_PERIOD,
+        CLK_START => 0 ns
     )
     port map(
         CLK => CLK
     );
+    
+    CLK_DIV_16_NO_DELAY_GEN: process is
+    begin
+        CLK_DIV_16_NO_DELAY <= '0';
+        
+        wait until RST = '0';
+        wait until (CLK'event and CLK = '1');
+        wait for CLK_PERIOD;
+        
+        loop
+            CLK_DIV_16_NO_DELAY <= '1';
+            wait for (CLK_PERIOD * 16) / 2;
+            
+            CLK_DIV_16_NO_DELAY <= '0';
+            wait for (CLK_PERIOD * 16) / 2;
+        end loop;
+    end process;
     
     SIM: process is
     begin
@@ -66,7 +87,7 @@ begin
         CTS <= '1';
         LEN <= '0';
         PARITY <= '0';
-        wait for (CLK_PERIOD * 16) * 5;
+        wait for RST_TIME;
         RST <= '0';
         
         -- UNATHORIZED START REJECTION TEST

@@ -10,7 +10,7 @@ entity COUNTER is
         CLK: in std_logic;
         EN: in std_logic;
         RST: in std_logic;
-        REF: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
+        MOD_PRED: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
         CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
     );
 end COUNTER;
@@ -59,7 +59,7 @@ begin
     end generate;
     
     SIG_GEN: for I in 0 to REQUIRED_BITS - 2 generate
-        -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when REF is reached
+        -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when MOD_PRED is reached
         J_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I)) when RESTART_COUNT = '0' else
                           '0';
         K_SIGNALS(I+1) <= (STATE(I) and J_SIGNALS(I)) when RESTART_COUNT = '0' else
@@ -72,7 +72,7 @@ begin
     )
     port map(
         INPUT_1 => STATE,
-        INPUT_2 => REF,
+        INPUT_2 => MOD_PRED,
         EQUAL => RESTART_COUNT
     );
     

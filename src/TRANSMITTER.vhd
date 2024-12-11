@@ -65,7 +65,7 @@ architecture RTL of TRANSMITTER is
         port(
             CLK: in std_logic;
             EN: in std_logic;
-            RST: in std_logic;
+            SET: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             LOAD: in std_logic;
             D_OUT: out std_logic
@@ -81,7 +81,7 @@ architecture RTL of TRANSMITTER is
             CLK: in std_logic;
             EN: in std_logic;
             RST: in std_logic;
-            REF: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
+            MOD_PRED: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
             CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
         );
     end component;
@@ -93,12 +93,10 @@ architecture RTL of TRANSMITTER is
         
         port(
             CNT_STATE: in std_logic_vector(COUNTER_BITS - 1 downto 0);
-            PS_REG_SHIFT_BIT: in std_logic;
             START: in std_logic;
             CTS: in std_logic;
-            CNT_START: out std_logic;
+            CNT_RUN: out std_logic;
             PS_REG_LOAD: out std_logic;
-            BIT_TO_SEND: out std_logic;
             TX_AVAILABLE: out std_logic
         );
     end component;
@@ -108,7 +106,7 @@ architecture RTL of TRANSMITTER is
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
-    signal CLK_EN, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_START, CNT_ENABLE: std_logic;
+    signal CLK_EN, PAR_BIT, PS_REG_LOAD, CNT_RUN, CNT_ENABLE: std_logic;
     signal CNT_STATE: std_logic_vector(3 downto 0);
     signal PS_REG_DATA: std_logic_vector(8 downto 0);
 begin
@@ -212,10 +210,10 @@ begin
     port map(
         CLK => CLK,
         EN => CLK_EN,
-        RST => RST,
+        SET => RST,
         D_IN => PS_REG_DATA,
         LOAD => PS_REG_LOAD,
-        D_OUT => PS_REG_SHIFT_BIT
+        D_OUT => TX_FF_INPUT
     );
     
     -- MANAGE TRASMISSION
@@ -227,7 +225,7 @@ begin
         CLK => CLK,
         EN => CNT_ENABLE,
         RST => RST,
-        REF => "1001", -- Last number in counter sequence
+        MOD_PRED => "1001", -- Last number in counter sequence
         CNT => CNT_STATE
     );
     
@@ -237,15 +235,13 @@ begin
     )
     port map(
         CNT_STATE => CNT_STATE,
-        PS_REG_SHIFT_BIT => PS_REG_SHIFT_BIT,
         START => START_SAMPLE,
         CTS => CTS_SAMPLE,
-        CNT_START => CNT_START,
+        CNT_RUN => CNT_RUN,
         PS_REG_LOAD => PS_REG_LOAD,
-        BIT_TO_SEND => TX_FF_INPUT,
         TX_AVAILABLE => TX_AVAILABLE_FF_INPUT
     );
     
     START_FF_INPUT <= START and TX_AVAILABLE_FF_INPUT;
-    CNT_ENABLE <= CLK_EN and CNT_START;
+    CNT_ENABLE <= CLK_EN and CNT_RUN;
 end RTL;

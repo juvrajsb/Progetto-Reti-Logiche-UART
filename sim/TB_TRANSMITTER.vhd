@@ -11,7 +11,7 @@ end TB_TRANSMITTER;
 architecture BHV of TB_TRANSMITTER is
     component TRANSMITTER is
             port(
-                CLK_X16: in std_logic;
+                CLK: in std_logic;
                 RST: in std_logic;
                 D_IN: in std_logic_vector(7 downto 0);
                 START: in std_logic;
@@ -33,12 +33,12 @@ architecture BHV of TB_TRANSMITTER is
         );
     end component;
     
-    signal CLK_X16, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
+    signal CLK, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
     port map(
-        CLK_X16 => CLK_X16,
+        CLK => CLK,
         RST => RST,
         D_IN => D_IN,
         START => START,
@@ -54,7 +54,7 @@ begin
         CLK_PERIOD => CLK_PERIOD
     )
     port map(
-        CLK => CLK_X16
+        CLK => CLK
     );
     
     SIM: process is

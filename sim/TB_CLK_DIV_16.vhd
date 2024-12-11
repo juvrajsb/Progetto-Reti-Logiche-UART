@@ -18,7 +18,8 @@ architecture BHV of TB_CLK_DIV_16 is
     
     component CLK_GEN is
         generic(
-            CLK_PERIOD: time
+            CLK_PERIOD: time;
+            CLK_START: time
         );
         
         port(
@@ -26,9 +27,8 @@ architecture BHV of TB_CLK_DIV_16 is
         );
     end component;
     
-    signal CLK_IN: std_logic;
-    signal RST: std_logic;
-    signal CLK_OUT: std_logic;
+    signal CLK_IN, RST, CLK_OUT: std_logic;
+    signal CLK_ENABLE: std_logic;
 begin
     UUT: CLK_DIV_16
         port map (
@@ -36,19 +36,20 @@ begin
             RST => RST,
             CLK_OUT => CLK_OUT
         );
-
+    
     CLOCK_GENERATOR: CLK_GEN
     generic map(
-        CLK_PERIOD => CLK_PERIOD
+        CLK_PERIOD => CLK_PERIOD,
+        CLK_START => 0 ns
     )
     port map(
         CLK => CLK_IN
     );
-
+    
     SIM: process
     begin
         RST <= '1';
-        wait for CLK_PERIOD * 10;
+        wait for CLK_PERIOD * 7.5;
         
         RST <= '0';
         wait for CLK_PERIOD * 100;
@@ -59,4 +60,6 @@ begin
         RST <= '0';
         wait;
     end process;
+    
+    CLK_ENABLE <= CLK_IN and CLK_OUT;
 end BHV;

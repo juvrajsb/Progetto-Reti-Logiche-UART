@@ -3,9 +3,9 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity CLK_DIV_16 is
     port(
-        CLK_X16: in std_logic;
+        CLK_IN: in std_logic;
         RST: in std_logic;
-        CLK_X1: out std_logic
+        CLK_OUT: out std_logic
     );
 end CLK_DIV_16;
 
@@ -31,7 +31,7 @@ begin
     FLIP_FLOP_D(3) <= not FLIP_FLOP_Q(3);
     
     FF0: FF_D port map(
-        CLK => CLK_x16,
+        CLK => CLK_IN,
         EN => '1',
         SET => '0',
         RST => RST,
@@ -66,5 +66,5 @@ begin
         Q => FLIP_FLOP_Q(3)
     );
     
-    CLK_X1 <= FLIP_FLOP_Q(3) and FLIP_FLOP_Q(2) and FLIP_FLOP_Q(1) and FLIP_FLOP_Q(0);
+    CLK_OUT <= FLIP_FLOP_Q(3) and FLIP_FLOP_Q(2) and FLIP_FLOP_Q(1) and FLIP_FLOP_Q(0);
 end RTL;

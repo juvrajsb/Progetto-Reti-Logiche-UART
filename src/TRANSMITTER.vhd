@@ -3,7 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity TRANSMITTER is
     port(
-        CLK_X16: in std_logic;
+        CLK: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic_vector(7 downto 0);
         START: in std_logic;
@@ -43,9 +43,9 @@ architecture RTL of TRANSMITTER is
     
     component CLK_DIV_16 is
     port(
-        CLK_X16: in std_logic;
+        CLK_IN: in std_logic;
         RST: in std_logic;
-        CLK_X1: out std_logic
+        CLK_OUT: out std_logic
     );
     end component;
     
@@ -108,7 +108,7 @@ architecture RTL of TRANSMITTER is
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
-    signal CLK_X1, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_START, CNT_ENABLE: std_logic;
+    signal CLK_EN, PAR_BIT, PS_REG_SHIFT_BIT, PS_REG_LOAD, CNT_START, CNT_ENABLE: std_logic;
     signal CNT_STATE: std_logic_vector(3 downto 0);
     signal PS_REG_DATA: std_logic_vector(8 downto 0);
 begin
@@ -118,8 +118,8 @@ begin
         REG_NUMBER => 8
     )
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         RST => RST,
         D_IN => D_IN,
         D_OUT => D_IN_SAMPLE
@@ -127,8 +127,8 @@ begin
     
     START_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => '0',
         RST => RST,
         D => START_FF_INPUT,
@@ -137,8 +137,8 @@ begin
     
     CTS_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => '0',
         RST => RST,
         D => CTS,
@@ -147,8 +147,8 @@ begin
     
     LEN_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => '0',
         RST => RST,
         D => LEN,
@@ -157,8 +157,8 @@ begin
     
     PARITY_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => '0',
         RST => RST,
         D => PARITY,
@@ -167,8 +167,8 @@ begin
     
     TX_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => RST,
         RST => '0',
         D => TX_FF_INPUT,
@@ -177,8 +177,8 @@ begin
     
     TX_AVAILABLE_FF: FF_D
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         SET => '0',
         RST => RST,
         D => TX_AVAILABLE_FF_INPUT,
@@ -188,9 +188,9 @@ begin
     -- CLOCK DIVISION
     CLK_DIV: CLK_DIV_16
     port map(
-        CLK_X16 => CLK_X16,
+        CLK_IN => CLK,
         RST => RST,
-        CLK_X1 => CLK_X1
+        CLK_OUT => CLK_EN
     );
 
     -- INPUT ELABORATION + SELECTION BASED ON LEN AND PARITY
@@ -210,8 +210,8 @@ begin
         REG_NUMBER => 9
     )
     port map(
-        CLK => CLK_X16,
-        EN => CLK_X1,
+        CLK => CLK,
+        EN => CLK_EN,
         RST => RST,
         D_IN => PS_REG_DATA,
         LOAD => PS_REG_LOAD,
@@ -224,7 +224,7 @@ begin
         REQUIRED_BITS => 4
     )
     port map(
-        CLK => CLK_X16,
+        CLK => CLK,
         EN => CNT_ENABLE,
         RST => RST,
         REF => "1001", -- Last number in counter sequence
@@ -247,5 +247,5 @@ begin
     );
     
     START_FF_INPUT <= START and TX_AVAILABLE_FF_INPUT;
-    CNT_ENABLE <= CLK_X1 and CNT_START;
+    CNT_ENABLE <= CLK_EN and CNT_START;
 end RTL;

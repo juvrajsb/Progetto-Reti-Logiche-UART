@@ -15,7 +15,7 @@ architecture BHV of TB_COUNTER is
             CLK: in std_logic;
             EN: in std_logic;
             RST: in std_logic;
-            REF: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
+            MOD_PRED: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
             CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
         );
     end component;
@@ -32,14 +32,14 @@ architecture BHV of TB_COUNTER is
     end component;
     
     signal CLK, EN, RST: std_logic;
-    signal REF, CNT: std_logic_vector(REQUIRED_BITS - 1 downto 0);
+    signal MOD_PRED, CNT: std_logic_vector(REQUIRED_BITS - 1 downto 0);
 begin
     UUT: COUNTER
     port map(
         CLK => CLK,
         EN => EN,
         RST => RST,
-        REF => REF,
+        MOD_PRED => MOD_PRED,
         CNT => CNT
     );
     
@@ -59,17 +59,17 @@ begin
         
         RST <= '0';
         EN <= '1';
-        REF <= "1001";
+        MOD_PRED <= "1001";
         wait for CLK_PERIOD * 5;
         
         RST <= '0';
         EN <= '0';
-        REF <= "1001";
+        MOD_PRED <= "1001";
         wait for CLK_PERIOD;
         
         RST <= '0';
         EN <= '1';
-        REF <= "1001";
+        MOD_PRED <= "1001";
         wait;
     end process;
 end BHV;

@@ -19,12 +19,12 @@ end REG_SP;
 architecture RTL of REG_SP is
     signal STATE: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
-    process(CLK, RST) is
+    process(CLK) is
     begin
-        if RST = '1' then
-            STATE <= (others => '0');
-        else
-            if CLK'event and CLK = '1' then
+        if CLK'event and CLK = '1' then
+            if RST = '1' then
+                STATE <= (others => '0');
+            else
                 if EN = '1' then
                     if LOAD = '1' then
                         STATE <= D_IN & STATE(REG_NUMBER - 1 downto 1);

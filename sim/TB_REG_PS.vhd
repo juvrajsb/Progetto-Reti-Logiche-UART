@@ -15,8 +15,8 @@ architecture BHV of TB_REG_PS is
             CLK: in std_logic;
             EN: in std_logic;
             SET: in std_logic;
-            LOAD: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
+            LOAD: std_logic;
             D_OUT: out std_logic
         );
     end component;
@@ -39,8 +39,8 @@ begin
     port map(
         CLK => CLK,
         EN => EN,
-        SET => SET,
         LOAD => LOAD,
+        SET => SET,
         D_IN => D_IN,
         D_OUT => D_OUT
     );

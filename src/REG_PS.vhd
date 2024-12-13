@@ -19,12 +19,12 @@ end REG_PS;
 architecture RTL of REG_PS is
     signal STATE: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
-    process(CLK, SET) is
+    process(CLK) is
     begin
-        if SET = '1' then
-            STATE <= (others => '1');
-        else
-            if CLK'event and CLK = '1' then
+        if CLK'event and CLK = '1' then
+            if SET = '1' then
+                STATE <= (others => '1');
+            else
                 if EN = '1' then
                     if LOAD = '1' then
                         STATE <= D_IN;

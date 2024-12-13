@@ -23,7 +23,7 @@ begin
     
     TEMP_AND(0) <= BIT_EQUALITY(0);
     AND_GEN: for I in 1 to LENGTH - 1 generate
-        TEMP_AND(I) <= TEMP_AND(I - 1) and BIT_EQUALITY(I);
+        TEMP_AND(I) <= TEMP_AND(I-1) and BIT_EQUALITY(I);
     end generate;
     EQUAL <= TEMP_AND(LENGTH - 1);
 end RTL;

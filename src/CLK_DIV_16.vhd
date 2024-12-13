@@ -19,6 +19,7 @@ architecture RTL of CLK_DIV_16 is
             CLK: in std_logic;
             EN: in std_logic;
             RST: in std_logic;
+            RESTART: in std_logic;
             MOD_PRED: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
             CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
         );
@@ -34,6 +35,7 @@ begin
         CLK => CLK_IN,
         EN => '1',
         RST => RST,
+        RESTART => '0',
         MOD_PRED => "1111",
         CNT => CNT
     );

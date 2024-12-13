@@ -14,15 +14,15 @@ end FF_D;
 
 architecture RTL of FF_D is
 begin
-    process(CLK, SET, RST) is
+    process(CLK) is
     begin
-        if RST = '1' then
-            Q <= '0';
-        else
-            if SET = '1' then
-                Q <= '1';
+        if CLK'event and CLK = '1' then
+            if RST = '1' then
+                Q <= '0';
             else
-                if CLK'event and CLK = '1' then
+                if SET = '1' then
+                    Q <= '1';
+                else
                     if EN = '1' then
                         Q <= D;
                     end if;

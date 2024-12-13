@@ -102,7 +102,7 @@ architecture RTL of TRANSMITTER is
     end component;
     
     -- INPUT AND OUTPUT RELATED SIGNALS
-    signal START_FF_INPUT, START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
+    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
@@ -129,7 +129,7 @@ begin
         EN => CLK_EN,
         SET => '0',
         RST => RST,
-        D => START_FF_INPUT,
+        D => START,
         Q => START_SAMPLE
     );
     
@@ -203,7 +203,7 @@ begin
                    (D_IN_SAMPLE & '0'); -- '0' is added in both cases to avoid losing least significant bit during transmission
     
     -- SAVE ELABORATED INPUT
-    REG: REG_PS
+    SHIFT_REG: REG_PS
     generic map(
         REG_NUMBER => 9
     )
@@ -242,6 +242,5 @@ begin
         TX_AVAILABLE => TX_AVAILABLE_FF_INPUT
     );
     
-    START_FF_INPUT <= START and TX_AVAILABLE_FF_INPUT;
     CNT_ENABLE <= CLK_EN and CNT_RUN;
 end RTL;

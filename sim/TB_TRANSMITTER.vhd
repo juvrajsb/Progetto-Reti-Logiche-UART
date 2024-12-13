@@ -36,7 +36,7 @@ architecture BHV of TB_TRANSMITTER is
     
     constant RST_TIME: time := (CLK_PERIOD * 16) * 4.2;
     
-    signal CLK, CLK_DIV_16_NO_DELAY, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
+    signal CLK, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
 begin
     UUT: TRANSMITTER
@@ -61,23 +61,6 @@ begin
         CLK => CLK
     );
     
-    CLK_DIV_16_NO_DELAY_GEN: process is
-    begin
-        CLK_DIV_16_NO_DELAY <= '0';
-        
-        wait until RST = '0';
-        wait until (CLK'event and CLK = '1');
-        wait for CLK_PERIOD;
-        
-        loop
-            CLK_DIV_16_NO_DELAY <= '1';
-            wait for (CLK_PERIOD * 16) / 2;
-            
-            CLK_DIV_16_NO_DELAY <= '0';
-            wait for (CLK_PERIOD * 16) / 2;
-        end loop;
-    end process;
-    
     SIM: process is
     begin
         -- RESET
@@ -90,17 +73,11 @@ begin
         wait for RST_TIME;
         RST <= '0';
         
-        -- UNATHORIZED START REJECTION TEST
-        START <= '1';
-        wait for (CLK_PERIOD * 16);
-        START <= '0';
-        
         -- SIMULATION WITH 8 BIT DATA
-        wait for (CLK_PERIOD * 16) * 6;
+        wait for (CLK_PERIOD * 16) * 3;
         LEN <= '1';
         D_IN <= "01000101";
         
-        wait for (CLK_PERIOD * 16) + START_DELAY;
         START <= '1';
         wait until TX_AVAILABLE = '0';
         wait for START_DELAY;

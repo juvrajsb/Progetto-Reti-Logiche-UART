@@ -10,6 +10,7 @@ entity COUNTER is
         CLK: in std_logic;
         EN: in std_logic;
         RST: in std_logic;
+        RESTART: in std_logic;
         MOD_PRED: in std_logic_vector(REQUIRED_BITS - 1 downto 0);
         CNT: out std_logic_vector(REQUIRED_BITS - 1 downto 0)
     );
@@ -40,7 +41,7 @@ architecture RTL of COUNTER is
     end component;
     
     signal T_SIGNALS, D_SIGNALS, STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
-    signal RESTART_COUNT: std_logic;
+    signal RESTART_COUNT, CNT_END: std_logic;
 begin
     -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when MOD_PRED is reached
     FF_D_GEN: for I in 0 to REQUIRED_BITS - 1 generate
@@ -73,8 +74,10 @@ begin
     port map(
         INPUT_1 => STATE,
         INPUT_2 => MOD_PRED,
-        EQUAL => RESTART_COUNT
+        EQUAL => CNT_END
     );
+
+    RESTART_COUNT <= CNT_END or RESTART;
     
     CNT <= STATE;
 end RTL;

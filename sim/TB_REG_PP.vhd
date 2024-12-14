@@ -14,6 +14,7 @@ architecture BHV of TB_REG_PP is
         port(
             CLK: in std_logic;
             EN: in std_logic;
+            SET: in std_logic;
             RST: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
@@ -31,13 +32,14 @@ architecture BHV of TB_REG_PP is
         );
     end component;
     
-    signal CLK, EN, RST: std_logic;
+    signal CLK, EN, SET, RST: std_logic;
     signal D_IN, D_OUT: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
     UUT: REG_PP
     port map(
         CLK => CLK,
         EN => EN,
+        SET => SET,
         RST => RST,
         D_IN => D_IN,
         D_OUT => D_OUT
@@ -54,30 +56,40 @@ begin
     
     SIM: process is
     begin
+        SET <= '1';
+        RST <= '0';
+        wait for CLK_PERIOD * 5.5;
+        
+        SET <= '0';
         RST <= '1';
-        wait for CLK_PERIOD * 10;
+        wait for CLK_PERIOD * 5.5;
         
         EN <= '1';
+        SET <= '0';
         RST <= '0';
         D_IN <= "10000011";
         wait for CLK_PERIOD * 8;
         
         EN <= '1';
+        SET <= '0';
         RST <= '0';
         D_IN <= "10000000";
         wait for CLK_PERIOD * 5;
         
         EN <= '1';
+        SET <= '0';
         RST <= '0';
         D_IN <= "11111111";
         wait for CLK_PERIOD * 5;
         
         EN <= '1';
+        SET <= '0';
         RST <= '1';
         D_IN <= "11111111";
         wait for CLK_PERIOD * 5;
         
         EN <= '0';
+        SET <= '0';
         RST <= '0';
         D_IN <= "10000000";
         wait;

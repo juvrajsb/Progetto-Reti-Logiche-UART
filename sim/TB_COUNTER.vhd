@@ -57,7 +57,7 @@ begin
     SIM: process is
     begin       
         RST <= '1';
-        wait for CLK_PERIOD * 10;
+        wait for CLK_PERIOD * 9.5;
         
         RST <= '0';
         EN <= '1';

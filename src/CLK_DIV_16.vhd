@@ -1,3 +1,4 @@
+
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -40,6 +41,6 @@ begin
         CNT => CNT
     );
     
-    CLK_OUT <= '1' when CNT = "0001" else
-               '0';
+    CLK_OUT <= '1' when CNT = "0001"
+               else '0';
 end RTL;

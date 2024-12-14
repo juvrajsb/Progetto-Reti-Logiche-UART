@@ -35,6 +35,7 @@ architecture RTL of TRANSMITTER is
         port(
             CLK: in std_logic;
             EN: in std_logic;
+            SET: in std_logic;
             RST: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
@@ -66,6 +67,7 @@ architecture RTL of TRANSMITTER is
             CLK: in std_logic;
             EN: in std_logic;
             SET: in std_logic;
+            RST: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             LOAD: in std_logic;
             D_OUT: out std_logic
@@ -97,19 +99,19 @@ architecture RTL of TRANSMITTER is
             START: in std_logic;
             CTS: in std_logic;
             CNT_RUN: out std_logic;
-            PS_REG_LOAD: out std_logic;
+            REG_PS_LOAD: out std_logic;
             TX_AVAILABLE: out std_logic
         );
     end component;
     
     -- INPUT AND OUTPUT RELATED SIGNALS
-    signal START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT: std_logic;
+    signal START_FF_INPUT, START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT, TX_AVAILABLE_FF_OUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
-    signal CLK_EN, PAR_BIT, PS_REG_LOAD, CNT_RUN, CNT_ENABLE: std_logic;
+    signal CLK_EN, PAR_BIT, MS_BIT, REG_PS_LOAD, CNT_RUN, CNT_ENABLE: std_logic;
     signal CNT_STATE: std_logic_vector(3 downto 0);
-    signal PS_REG_DATA: std_logic_vector(8 downto 0);
+    signal REG_PS_DATA: std_logic_vector(8 downto 0);
 begin
     -- INPUT AND OUTPUT REGISTERS
     D_IN_REG: REG_PP
@@ -119,6 +121,7 @@ begin
     port map(
         CLK => CLK,
         EN => CLK_EN,
+        SET => '0',
         RST => RST,
         D_IN => D_IN,
         D_OUT => D_IN_SAMPLE
@@ -130,7 +133,7 @@ begin
         EN => CLK_EN,
         SET => '0',
         RST => RST,
-        D => START,
+        D => START_FF_INPUT,
         Q => START_SAMPLE
     );
     
@@ -181,7 +184,7 @@ begin
         SET => '0',
         RST => RST,
         D => TX_AVAILABLE_FF_INPUT,
-        Q => TX_AVAILABLE
+        Q => TX_AVAILABLE_FF_OUT
     );
     
     -- CLOCK DIVISION
@@ -200,10 +203,11 @@ begin
         PAR_BIT => PAR_BIT
     );
     
-    PS_REG_DATA <= (PAR_BIT & D_IN_SAMPLE(6 downto 0) & '0') when LEN_SAMPLE = '0' else
-                   (D_IN_SAMPLE & '0'); -- '0' is added in both cases to avoid losing least significant bit during transmission
+    MS_BIT <= PAR_BIT when LEN_SAMPLE = '0'
+              else D_IN_SAMPLE(7);
+    REG_PS_DATA <= MS_BIT & D_IN_SAMPLE(6 downto 0) & '0'; -- '0' is added as start bit
     
-    -- SAVE ELABORATED INPUT
+    -- MANAGE TRASMISSION
     SHIFT_REG: REG_PS
     generic map(
         REG_NUMBER => 9
@@ -212,12 +216,12 @@ begin
         CLK => CLK,
         EN => CLK_EN,
         SET => RST,
-        D_IN => PS_REG_DATA,
-        LOAD => PS_REG_LOAD,
+        RST => '0',
+        D_IN => REG_PS_DATA,
+        LOAD => REG_PS_LOAD,
         D_OUT => TX_FF_INPUT
     );
     
-    -- MANAGE TRASMISSION
     CNT_MOD_10: COUNTER
     generic map(
         REQUIRED_BITS => 4
@@ -240,9 +244,11 @@ begin
         START => START_SAMPLE,
         CTS => CTS_SAMPLE,
         CNT_RUN => CNT_RUN,
-        PS_REG_LOAD => PS_REG_LOAD,
+        REG_PS_LOAD => REG_PS_LOAD,
         TX_AVAILABLE => TX_AVAILABLE_FF_INPUT
     );
     
     CNT_ENABLE <= CLK_EN and CNT_RUN;
+    START_FF_INPUT <= START and TX_AVAILABLE_FF_OUT;
+    TX_AVAILABLE <= TX_AVAILABLE_FF_OUT;
 end RTL;

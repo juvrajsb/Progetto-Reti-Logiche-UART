@@ -9,6 +9,7 @@ entity REG_SP is
     port(
         CLK: in std_logic;
         EN: in std_logic;
+        SET: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic;
         LOAD: in std_logic;
@@ -21,15 +22,14 @@ architecture RTL of REG_SP is
 begin
     process(CLK) is
     begin
-        if CLK'event and CLK = '1' then
-            if RST = '1' then
+        if rising_edge(CLK) then
+            if SET = '1' then
+                STATE <= (others => '1');
+            elsif RST = '1' then
                 STATE <= (others => '0');
-            else
-                if EN = '1' then
-                    if LOAD = '1' then
-                        STATE <= D_IN & STATE(REG_NUMBER - 1 downto 1);
-                    end if;
-                end if;
+            elsif EN = '1' and LOAD = '1' then
+                -- Right shift
+                STATE <= D_IN & STATE(REG_NUMBER - 1 downto 1);
             end if;
         end if;
     end process;

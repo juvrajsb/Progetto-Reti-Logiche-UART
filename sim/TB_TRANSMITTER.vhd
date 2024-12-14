@@ -3,8 +3,7 @@ use IEEE.STD_LOGIC_1164.ALL;
 
 entity TB_TRANSMITTER is
     generic(
-        CLK_PERIOD: time := 2 ns;
-        START_DELAY: time := 2 ns
+        CLK_PERIOD: time := 60 ns
     );
 end TB_TRANSMITTER;
 
@@ -34,7 +33,8 @@ architecture BHV of TB_TRANSMITTER is
         );
     end component;
     
-    constant RST_TIME: time := (CLK_PERIOD * 16) * 4.2;
+    constant RST_TIME: time := (CLK_PERIOD * 16) * 4.5;
+    constant START_DELAY: time := (CLK_PERIOD * 16) * 0.5;
     
     signal CLK, RST, START, CTS, LEN, PARITY, TX, TX_AVAILABLE: std_logic;
     signal D_IN: std_logic_vector(7 downto 0);
@@ -72,6 +72,11 @@ begin
         PARITY <= '0';
         wait for RST_TIME;
         RST <= '0';
+        
+        -- UNAUTHORIZED START REJECTION TEST
+        START <= '1';
+        wait for (CLK_PERIOD * 16);
+        START <= '0';
         
         -- SIMULATION WITH 8 BIT DATA
         wait for (CLK_PERIOD * 16) * 3;

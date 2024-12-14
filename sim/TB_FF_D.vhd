@@ -59,7 +59,7 @@ begin
         
         SET <= '0';
         RST <= '1';
-        wait for CLK_PERIOD * 9.4;
+        wait for CLK_PERIOD * 9.5;
         
         EN <= '1';
         SET <= '0';

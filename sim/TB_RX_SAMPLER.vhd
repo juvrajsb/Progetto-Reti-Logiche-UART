@@ -10,13 +10,13 @@ end TB_RX_SAMPLER;
 architecture BHV of TB_RX_SAMPLER is
     component RX_SAMPLER is
         port(
-            CLK         : in  std_logic;
-            RST         : in  std_logic;
-            RX          : in  std_logic;
-            SAMPLED_BIT : out std_logic;
-            LOAD        : out std_logic;
-            FRAME_ERROR : out std_logic;
-            RX_END      : out std_logic
+            CLK: in std_logic;
+            RST: in std_logic;
+            RX: in std_logic;
+            SAMPLED_BIT: out std_logic;
+            LOAD: out std_logic;
+            FRAME_ERROR: out std_logic;
+            RX_END: out std_logic
         );
     end component;
     
@@ -25,20 +25,14 @@ architecture BHV of TB_RX_SAMPLER is
             CLK_PERIOD: time;
             CLK_START: time
         );
+        
         port(
             CLK: out std_logic
         );
     end component;
     
     -- Test signals
-    signal CLK           : std_logic;
-    signal RST           : std_logic := '1';
-    signal RX            : std_logic := '1';
-    signal SAMPLED_BIT   : std_logic;
-    signal LOAD          : std_logic;
-    signal FRAME_ERROR   : std_logic;
-    signal RX_END        : std_logic;
-    
+    signal CLK, RST, RX, SAMPLED_BIT, LOAD, FRAME_ERROR, RX_END: std_logic;
 begin
     -- Clock generator instantiation
     CLOCK_GENERATOR: CLK_GEN
@@ -53,16 +47,14 @@ begin
     -- Device Under Test instantiation
     UUT: RX_SAMPLER
     port map(
-        CLK            => CLK,
-        RST            => RST,
-        RX             => RX,
-        SAMPLED_BIT    => SAMPLED_BIT,
-        LOAD           => LOAD,
-        FRAME_ERROR    => FRAME_ERROR,
-        RX_END         => RX_END
+        CLK => CLK,
+        RST => RST,
+        RX => RX,
+        SAMPLED_BIT => SAMPLED_BIT,
+        LOAD => LOAD,
+        FRAME_ERROR => FRAME_ERROR,
+        RX_END => RX_END
     );
-
-
     
     -- Test stimulus process
     SIM: process
@@ -121,5 +113,4 @@ begin
         
         wait;
     end process;
-
 end BHV;

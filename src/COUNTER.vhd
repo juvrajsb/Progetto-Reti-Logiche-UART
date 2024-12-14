@@ -28,20 +28,8 @@ architecture RTL of COUNTER is
         );
     end component;
     
-    component COMPARATOR is
-        generic(
-            LENGTH: integer := 8
-        );
-        
-        port(
-            INPUT_1: in std_logic_vector(LENGTH - 1 downto 0);
-            INPUT_2: in std_logic_vector(LENGTH - 1 downto 0);
-            EQUAL: out std_logic
-        );
-    end component;
-    
-    signal T_SIGNALS, D_SIGNALS, STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
     signal RESTART_COUNT, CNT_END: std_logic;
+    signal T_SIGNALS, D_SIGNALS, STATE: std_logic_vector(REQUIRED_BITS - 1 downto 0);
 begin
     -- Act as a fast counter built with T flip flops yet reset all the counters to '0' when MOD_PRED is reached
     FF_D_GEN: for I in 0 to REQUIRED_BITS - 1 generate
@@ -57,26 +45,18 @@ begin
     end generate;
     
     T_SIGNALS(0) <= '1';
-    D_SIGNALS(0) <= '0' when RESTART_COUNT = '1' else
-                    not STATE(0);
+    D_SIGNALS(0) <= '0' when RESTART_COUNT = '1'
+                    else not STATE(0);
     
     SIG_GEN: for I in 1 to REQUIRED_BITS - 1 generate
-        T_SIGNALS(I) <= STATE(I-1) and T_SIGNALS(I-1);
-        D_SIGNALS(I) <= '0' when RESTART_COUNT = '1' else
-                        not STATE(I) when T_SIGNALS(I) = '1' else
-                        STATE(I);
+        T_SIGNALS(I) <= STATE(I - 1) and T_SIGNALS(I - 1);
+        D_SIGNALS(I) <= '0' when RESTART_COUNT = '1'
+                        else not STATE(I) when T_SIGNALS(I) = '1'
+                        else STATE(I);
     end generate;
     
-    REF_COMPARATOR: COMPARATOR
-    generic map(
-        LENGTH => REQUIRED_BITS
-    )
-    port map(
-        INPUT_1 => STATE,
-        INPUT_2 => MOD_PRED,
-        EQUAL => CNT_END
-    );
-
+    CNT_END <= '1' when STATE = MOD_PRED
+               else '0';
     RESTART_COUNT <= CNT_END or RESTART;
     
     CNT <= STATE;

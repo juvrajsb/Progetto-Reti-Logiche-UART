@@ -11,20 +11,19 @@ entity TX_CONTROLLER is
         START: in std_logic;
         CTS: in std_logic;
         CNT_RUN: out std_logic;
-        PS_REG_LOAD: out std_logic;
+        REG_PS_LOAD: out std_logic;
         TX_AVAILABLE: out std_logic
     );
 end TX_CONTROLLER;
 
 architecture RTL of TX_CONTROLLER is
 begin
-    CNT_RUN <= (START and CTS) when CNT_STATE = "0000" else
-               '1';
+    CNT_RUN <= (START and CTS) when CNT_STATE = "0000"
+               else '1';
     
-    PS_REG_LOAD <= (START and CTS) when CNT_STATE = "0000" else
-                   '0';
+    REG_PS_LOAD <= (START and CTS) when CNT_STATE = "0000"
+                   else '0';
     
-    TX_AVAILABLE <= '1' when (((CNT_STATE = "0000" and START = '0') or CNT_STATE = "1001") and CTS = '1') else
-                    '0';
+    TX_AVAILABLE <= '1' when (((CNT_STATE = "0000" and START = '0') or CNT_STATE = "1001") and CTS = '1')
+                    else '0';
 end RTL;
-

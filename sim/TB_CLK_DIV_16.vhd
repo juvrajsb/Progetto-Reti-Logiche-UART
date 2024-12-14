@@ -28,7 +28,6 @@ architecture BHV of TB_CLK_DIV_16 is
     end component;
     
     signal CLK_IN, RST, CLK_OUT: std_logic;
-    signal CLK_ENABLE: std_logic;
 begin
     UUT: CLK_DIV_16
         port map (
@@ -52,14 +51,6 @@ begin
         wait for CLK_PERIOD * 7.5;
         
         RST <= '0';
-        wait for CLK_PERIOD * 100;
-        
-        RST <= '1';
-        wait for CLK_PERIOD * 2;
-        
-        RST <= '0';
         wait;
     end process;
-    
-    CLK_ENABLE <= CLK_IN and CLK_OUT;
 end BHV;

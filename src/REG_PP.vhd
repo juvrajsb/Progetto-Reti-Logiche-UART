@@ -9,6 +9,7 @@ entity REG_PP is
     port(
         CLK: in std_logic;
         EN: in std_logic;
+        SET: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
         D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
@@ -19,13 +20,13 @@ architecture RTL of REG_PP is
 begin
     process(CLK) is
     begin
-        if CLK'event and CLK = '1' then
-            if RST = '1' then
+        if rising_edge(CLK) then
+            if SET = '1' then
+                D_OUT <= (others => '1');
+            elsif RST = '1' then
                 D_OUT <= (others => '0');
-            else
-                if EN = '1' then
-                    D_OUT <= D_IN;
-                end if;
+            elsif EN = '1' then
+                D_OUT <= D_IN;
             end if;
         end if;
     end process;

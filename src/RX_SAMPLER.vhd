@@ -44,7 +44,7 @@ architecture RTL of RX_SAMPLER is
     signal CNT_RESTART, RX_FF1, RX_SYNC : std_logic;
     signal CNT : std_logic_vector(7 downto 0);
 begin
-    -- Input synchronization
+    -- Input synchronization to avoid metastability
     SYNC_FF1: FF_D
     port map(
         CLK => CLK,

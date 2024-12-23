@@ -6,13 +6,13 @@ entity RECEIVER is
         CLK: in std_logic;
         RST: in std_logic;
         RX: in std_logic;
-        PARITY: in std_logic;    -- '0' for even parity, '1' for odd parity
-        LEN: in std_logic;       -- '0' for 7 bits, '1' for 8 bits
-        STOP_RCV: in std_logic;  -- Stop receiving
+        PARITY: in std_logic; -- '0' for even parity, '1' for odd parity
+        LEN: in std_logic; -- '0' for 7 bits, '1' for 8 bits
+        STOP_RCV: in std_logic; -- Stop receiving
         D_OUT: out std_logic_vector(7 downto 0);
-        READY: out std_logic;    -- Data ready flag
-        ERROR: out std_logic;    -- Combined error flag
-        RTS: out std_logic      -- Request to send
+        READY: out std_logic; -- Data ready flag
+        ERROR: out std_logic; -- Combined error flag
+        RTS: out std_logic -- Request to send
     );
 end RECEIVER;
 
@@ -28,11 +28,12 @@ architecture RTL of RECEIVER is
             RX_END: out std_logic
         );
     end component;
-
+    
     component REG_SP is
         generic(
             REG_NUMBER: integer := 8
         );
+        
         port(
             CLK: in std_logic;
             EN: in std_logic;
@@ -43,11 +44,12 @@ architecture RTL of RECEIVER is
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
         );
     end component;
-
+    
     component REG_PP is
         generic(
             REG_NUMBER: integer := 8
         );
+        
         port(
             CLK: in std_logic;
             EN: in std_logic;
@@ -57,7 +59,7 @@ architecture RTL of RECEIVER is
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
         );
     end component;
-
+    
     component PAR_7 is
         port(
             DATA: in std_logic_vector(6 downto 0);
@@ -65,7 +67,7 @@ architecture RTL of RECEIVER is
             PAR_BIT: out std_logic
         );
     end component;
-
+    
     component FF_D is
         port(
             CLK: in std_logic;
@@ -76,35 +78,103 @@ architecture RTL of RECEIVER is
             Q: out std_logic
         );
     end component;
-
-    signal SAMPLED_BIT, LOAD_BIT, RX_END, FRAME_ERROR: std_logic;
-    signal SP_DATA: std_logic_vector(7 downto 0);
-    signal CALCULATED_PARITY: std_logic;
-    signal PARITY_ERROR, PARITY_CHECK_ENABLE: std_logic;
-    signal RX_SYNC: std_logic;
-
+    
+    -- Input and output signals
+    signal LEN_SAMPLE, PARITY_SAMPLE, STOP_RCV_SAMPLE, READY_FF_INPUT, ERROR_FF_INPUT, RTS_FF_INPUT: std_logic;
+    
+    -- Internal signals
+    signal SAMPLED_BIT, REG_SP_LOAD, RX_END, FRAME_ERROR, CALCULATED_PARITY, PARITY_ERROR, PARITY_CHECK_ENABLE: std_logic;
+    signal REG_SP_DATA: std_logic_vector(7 downto 0);
 begin
-    INPUT_SYNC: FF_D
+    -- Input and output registers
+    LEN_FF: FF_D
     port map(
         CLK => CLK,
         EN => '1',
+        RST => RST,
+        SET => '0',
+        D => LEN,
+        Q => LEN_SAMPLE
+    );
+    
+    PARITY_FF: FF_D
+    port map(
+        CLK => CLK,
+        EN => '1',
+        RST => RST,
+        SET => '0',
+        D => PARITY,
+        Q => PARITY_SAMPLE
+    );
+    
+    STOP_RCV_FF: FF_D
+    port map(
+        CLK => CLK,
+        EN => '1',
+        RST => '0',
+        SET => RST,
+        D => STOP_RCV,
+        Q => STOP_RCV_SAMPLE
+    );
+    
+    D_OUT_REG: REG_PP
+    generic map(
+        REG_NUMBER => 8
+    )
+    port map(
+        CLK => CLK,
+        EN => RX_END,
         SET => '0',
         RST => RST,
-        D => RX,
-        Q => RX_SYNC
+        D_IN => REG_SP_DATA,
+        D_OUT => D_OUT
     );
-
+    
+    READY_FF: FF_D
+    port map(
+        CLK => CLK,
+        EN => '1',
+        RST => RST,
+        SET => '0',
+        D => READY_FF_INPUT,
+        Q => READY
+    );
+    
+    ERROR_FF: FF_D
+    port map(
+        CLK => CLK,
+        EN => RX_END,
+        RST => RST,
+        SET => '0',
+        D => ERROR_FF_INPUT,
+        Q => ERROR
+    );
+    
+    RTS_FF: FF_D
+    port map(
+        CLK => CLK,
+        EN => '1',
+        RST => RST,
+        SET => '0',
+        D => RTS_FF_INPUT,
+        Q => RTS
+    );
+    
+    -- STOP_RCV / RTS management
+    RTS_FF_INPUT <= not STOP_RCV_SAMPLE;
+    
+    -- Sampling and data output
     SAMPLER: RX_SAMPLER
     port map(
         CLK => CLK,
         RST => RST,
-        RX => RX_SYNC,
+        RX => RX,
         SAMPLED_BIT => SAMPLED_BIT,
-        LOAD => LOAD_BIT,
+        LOAD => REG_SP_LOAD,
         FRAME_ERROR => FRAME_ERROR,
         RX_END => RX_END
     );
-
+    
     SHIFT_REG: REG_SP
     generic map(
         REG_NUMBER => 8
@@ -115,52 +185,19 @@ begin
         SET => '0',
         RST => RST,
         D_IN => SAMPLED_BIT,
-        LOAD => LOAD_BIT,
-        D_OUT => SP_DATA
+        LOAD => REG_SP_LOAD,
+        D_OUT => REG_SP_DATA
     );
-
-    OUTPUT_REG: REG_PP
-    generic map(
-        REG_NUMBER => 8
-    )
-    port map(
-        CLK => CLK,
-        EN => RX_END,
-        SET => '0',
-        RST => RST,
-        D_IN => SP_DATA,
-        D_OUT => D_OUT
-    );
-
+    
     PARITY_CALC: PAR_7
     port map(
-        DATA => SP_DATA(6 downto 0),
-        ODD_MODE => PARITY,
+        DATA => REG_SP_DATA(6 downto 0),
+        ODD_MODE => PARITY_SAMPLE,
         PAR_BIT => CALCULATED_PARITY
     );
-
-    -- Error detection and control logic
-    process(CLK)
-    begin
-        if rising_edge(CLK) then
-            if RST = '1' then
-                ERROR <= '0';
-                READY <= '0';
-                RTS <= '0';
-            else
-                -- Parity error detection
-                PARITY_ERROR <= (CALCULATED_PARITY xnor SP_DATA(7)) and (not LEN);
-                
-                -- Combined error flag
-                ERROR <= FRAME_ERROR or PARITY_ERROR;
-                
-                -- Data ready flag
-                READY <= RX_END;-- and not ERROR; -- We could uncomment depeding on the user
-                
-                -- Request to send
-                RTS <= not STOP_RCV;
-            end if;
-        end if;
-    end process;
-
+    
+    PARITY_ERROR <= (CALCULATED_PARITY xor REG_SP_DATA(7)) when LEN = '0'
+                    else '0';
+    ERROR_FF_INPUT <= FRAME_ERROR or PARITY_ERROR;
+    READY_FF_INPUT <= RX_END;
 end RTL;

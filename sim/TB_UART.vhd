@@ -27,17 +27,18 @@ architecture BHV of TB_UART is
             RX: in std_logic
         );
     end component;
-
+    
     component CLK_GEN is
         generic(
             CLK_PERIOD: time;
             CLK_START: time
         );
+        
         port(
             CLK: out std_logic
         );
     end component;
-
+    
     -- Test signals
     signal CLK, RST: std_logic;
     signal D_IN, D_OUT: std_logic_vector(7 downto 0);
@@ -46,7 +47,6 @@ architecture BHV of TB_UART is
     signal LEN, PARITY: std_logic;
     signal RTS, CTS, STOP_RCV: std_logic;
     signal SERIAL_LINE: std_logic := '1';  -- Initialize to idle state
-
 begin
     -- Clock generator
     CLOCK_GENERATOR: CLK_GEN
@@ -57,7 +57,7 @@ begin
     port map(
         CLK => CLK
     );
-
+    
     -- UART instantiation
     UUT: UART
     port map(
@@ -77,7 +77,7 @@ begin
         TX => SERIAL_LINE,
         RX => SERIAL_LINE
     );
-
+    
     -- Test process
     SIM: process is
     begin
@@ -106,18 +106,18 @@ begin
         START <= '0';
         
         wait until READY = '1';
-        assert (D_OUT = "10101111") 
+        assert (D_OUT = "10101111")
             report "Test 1: Data mismatch";
-            
+        
         wait for CLK_PERIOD * 16;
         
         -- Test 2: Flow Control Test
         report "Test 2: Testing Flow Control";
         STOP_RCV <= '1';
         wait for CLK_PERIOD * 2;
-        assert (RTS = '0') 
+        assert (RTS = '0')
             report "Test 2: RTS not deasserted";
-            
+        
         -- Test 3: Different Data Pattern
         report "Test 3: Testing Different Data Pattern";
         STOP_RCV <= '0';
@@ -130,12 +130,11 @@ begin
         START <= '0';
         
         wait until READY = '1';
-        assert (D_OUT = "11110100") 
+        assert (D_OUT = "11110100")
             report "Test 3: Data mismatch";
         
         wait for CLK_PERIOD * 16;
         report "UART Test Complete";
         wait;
     end process;
-
 end BHV;

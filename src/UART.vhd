@@ -45,7 +45,7 @@ architecture RTL of UART is
             TX_AVAILABLE: out std_logic
         );
     end component;
-
+    
     component RECEIVER is
         port(
             CLK: in std_logic;
@@ -60,7 +60,6 @@ architecture RTL of UART is
             RTS: out std_logic
         );
     end component;
-
 begin
     -- Transmitter instantiation
     TX_UNIT: TRANSMITTER
@@ -90,5 +89,4 @@ begin
         ERROR => ERROR,
         RTS => RTS
     );
-    
 end RTL;

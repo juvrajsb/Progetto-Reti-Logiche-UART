@@ -13,44 +13,31 @@ entity REG_PS is
         RST: in std_logic;
         D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
         LOAD: in std_logic;
+        SHIFT_BIT: in std_logic;
         D_OUT: out std_logic
     );
 end REG_PS;
 
 architecture RTL of REG_PS is
-    component FF_D is
-    port(
-        CLK: in std_logic;
-        EN: in std_logic;
-        SET: in std_logic;
-        RST: in std_logic;
-        D: in std_logic;
-        Q: out std_logic
-    );
-    end component;
-    
     signal STATE: std_logic_vector(REG_NUMBER - 1 downto 0);
-    signal INPUTS: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
-    INPUTS(REG_NUMBER - 1) <= '1' when LOAD = '0'
-                              else D_IN(REG_NUMBER - 1);
-    
-    FF_D_GEN: for I in REG_NUMBER - 1 downto 0 generate
-        FF: FF_D
-        port map (
-            CLK => CLK,
-            EN => EN,
-            SET => SET,
-            RST => RST,
-            D => INPUTS(I),
-            Q => STATE(I)
-        );
-    end generate;
-    
-    SIG_GEN: for I in REG_NUMBER - 2 downto 0 generate
-        INPUTS(I) <= STATE(I+1) when LOAD = '0' else
-                     D_IN(I);
-    end generate;
+    process(CLK) is
+    begin
+        if rising_edge(CLK) then
+            if SET = '1' then
+                STATE <= (others => '1');
+            elsif RST = '1' then
+                STATE <= (others => '0');
+            elsif EN = '1' then
+                if LOAD = '1' then
+                    STATE <= D_IN;
+                else
+                    -- Right shift
+                    STATE <= SHIFT_BIT & STATE(REG_NUMBER - 1 downto 1);
+                end if;
+            end if;
+        end if;
+    end process;
     
     D_OUT <= STATE(0);
 end RTL;

@@ -17,7 +17,8 @@ architecture BHV of TB_REG_PS is
             SET: in std_logic;
             RST: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
-            LOAD: std_logic;
+            LOAD: in std_logic;
+            SHIFT_BIT: in std_logic;
             D_OUT: out std_logic
         );
     end component;
@@ -33,17 +34,18 @@ architecture BHV of TB_REG_PS is
         );
     end component;
     
-    signal CLK, EN, SET, RST, LOAD, D_OUT: std_logic;
+    signal CLK, EN, SET, RST, LOAD, SHIFT_BIT, D_OUT: std_logic;
     signal D_IN: std_logic_vector(REG_NUMBER - 1 downto 0);
 begin
     UUT: REG_PS
     port map(
         CLK => CLK,
         EN => EN,
-        LOAD => LOAD,
         SET => SET,
         RST => RST,
         D_IN => D_IN,
+        LOAD => LOAD,
+        SHIFT_BIT => SHIFT_BIT,
         D_OUT => D_OUT
     );
     
@@ -58,6 +60,8 @@ begin
     
     SIM: process is
     begin
+        SHIFT_BIT <= '1';
+        
         SET <= '0';
         RST <= '1';
         wait for CLK_PERIOD * 5.5;

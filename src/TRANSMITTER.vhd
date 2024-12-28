@@ -70,6 +70,7 @@ architecture RTL of TRANSMITTER is
             RST: in std_logic;
             D_IN: in std_logic_vector(REG_NUMBER - 1 downto 0);
             LOAD: in std_logic;
+            SHIFT_BIT: in std_logic;
             D_OUT: out std_logic
         );
     end component;
@@ -105,7 +106,7 @@ architecture RTL of TRANSMITTER is
     end component;
     
     -- INPUT AND OUTPUT RELATED SIGNALS
-    signal START_FF_INPUT, START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_FF_INPUT, TX_AVAILABLE_FF_INPUT, TX_AVAILABLE_FF_OUT: std_logic;
+    signal START_FF_INPUT, START_SAMPLE, CTS_SAMPLE, LEN_SAMPLE, PARITY_SAMPLE, TX_AVAILABLE_FF_INPUT, TX_AVAILABLE_FF_OUT: std_logic;
     signal D_IN_SAMPLE: std_logic_vector(7 downto 0);
     
     -- INTERNAL SIGNALS
@@ -167,16 +168,6 @@ begin
         Q => PARITY_SAMPLE
     );
     
-    TX_FF: FF_D
-    port map(
-        CLK => CLK,
-        EN => CLK_EN,
-        SET => RST,
-        RST => '0',
-        D => TX_FF_INPUT,
-        Q => TX
-    );
-    
     TX_AVAILABLE_FF: FF_D
     port map(
         CLK => CLK,
@@ -219,7 +210,8 @@ begin
         RST => '0',
         D_IN => REG_PS_DATA,
         LOAD => REG_PS_LOAD,
-        D_OUT => TX_FF_INPUT
+        SHIFT_BIT => '1',
+        D_OUT => TX
     );
     
     CNT_MOD_10: COUNTER

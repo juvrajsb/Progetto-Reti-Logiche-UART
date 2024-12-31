@@ -83,7 +83,7 @@ architecture RTL of RECEIVER is
     signal LEN_SAMPLE, PARITY_SAMPLE, STOP_RCV_SAMPLE, READY_FF_INPUT, ERROR_FF_INPUT, RTS_FF_INPUT: std_logic;
     
     -- Internal signals
-    signal SAMPLED_BIT, REG_SP_LOAD, RX_END, FRAME_ERROR, CALCULATED_PARITY, PARITY_ERROR, PARITY_CHECK_ENABLE: std_logic;
+    signal SAMPLED_BIT, REG_SP_LOAD, RX_END, FRAME_ERROR, CALCULATED_PARITY, PARITY_ERROR: std_logic;
     signal REG_SP_DATA: std_logic_vector(7 downto 0);
 begin
     -- Input and output registers
@@ -196,7 +196,7 @@ begin
         PAR_BIT => CALCULATED_PARITY
     );
     
-    PARITY_ERROR <= (CALCULATED_PARITY xor REG_SP_DATA(7)) when LEN = '0'
+    PARITY_ERROR <= (CALCULATED_PARITY xor REG_SP_DATA(7)) when LEN_SAMPLE = '0'
                     else '0';
     ERROR_FF_INPUT <= FRAME_ERROR or PARITY_ERROR;
     READY_FF_INPUT <= RX_END;

@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.SIM_UTILS.ALL;
 
 entity TB_RX_SAMPLER is
     generic(
@@ -57,29 +58,10 @@ begin
     );
     
     -- Test stimulus process
-    SIM: process
-        -- Procedure to transmit one byte with 8N1 format
-        procedure SEND_BYTE(byte: in std_logic_vector(7 downto 0)) is
-        begin
-            -- Start bit
-            RX <= '0';
-            wait for CLK_PERIOD * 16;
-            
-            -- Data bits
-            for i in 0 to 7 loop
-                RX <= byte(i);
-                wait for CLK_PERIOD * 16;
-            end loop;
-            
-            -- Stop bit
-            RX <= '1';
-            wait for CLK_PERIOD * 16;
-        end procedure;
-        
+    SIM: process is
         -- Test data constants
-        constant TEST_BYTE1 : std_logic_vector(7 downto 0) := "10110101";  -- 0xB5
-        constant TEST_BYTE2 : std_logic_vector(7 downto 0) := "11000011";  -- 0xC3
-        
+        constant TEST_BYTE1 : std_logic_vector(7 downto 0) := "10110101";
+        constant TEST_BYTE2 : std_logic_vector(7 downto 0) := "11000011";
     begin
         -- Initial reset
         RST <= '1';
@@ -90,26 +72,54 @@ begin
         wait for CLK_PERIOD * 16;
         
         -- Test Case 1: Single byte transmission
-        SEND_BYTE(TEST_BYTE1);
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => TEST_BYTE1,
+            LEN => '1',
+            PARITY => '0',
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 2: Back-to-back bytes
-        SEND_BYTE(TEST_BYTE1);
-        SEND_BYTE(TEST_BYTE2);
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => TEST_BYTE1,
+            LEN => '1',
+            PARITY => '0',
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => TEST_BYTE2,
+            LEN => '1',
+            PARITY => '0',
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
-        -- Test Case 3: Test with noise and frame error
+        -- Test Case 3: Test with noise
         RX <= '0';  -- Start bit
         wait for CLK_PERIOD * 16/4;
         RX <= '1';  -- Noise pulse
         wait for CLK_PERIOD * 16/4;
-        RX <= '0';
-        wait for CLK_PERIOD * 16;
-        for i in 0 to 7 loop
-            RX <= TEST_BYTE2(i);
-            wait for CLK_PERIOD * 16;
-        end loop;
-        RX <= '0';
+        
+        -- Test case 4: Test with frame error
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => TEST_BYTE2,
+            LEN => '1',
+            PARITY => '0',
+            BAD_STOP_BIT => true,
+            BAD_PARITY => false,
+            RX => RX
+        );
         
         wait;
     end process;

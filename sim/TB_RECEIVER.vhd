@@ -1,5 +1,6 @@
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
+use WORK.SIM_UTILS.ALL;
 
 entity TB_RECEIVER is
     generic(
@@ -63,53 +64,6 @@ begin
     );
     
     SIM: process is
-        procedure SEND_BYTE(
-            DATA: in std_logic_vector(7 downto 0);
-            BAD_STOP_BIT: boolean;
-            BAD_PARITY: boolean
-        ) is
-            variable PARITY_BIT: std_logic;
-        begin
-            -- Calculate parity (for 7-bit mode)
-            PARITY_BIT := DATA(0) xor DATA(1) xor DATA(2) xor DATA(3) xor DATA(4) xor DATA(5) xor DATA(6);
-            
-            if PARITY = '1' then  -- Odd parity
-                PARITY_BIT := not PARITY_BIT;
-            end if;
-            if BAD_PARITY = true then
-                PARITY_BIT := not PARITY_BIT;
-            end if;
-            
-            -- Start bit
-            RX <= '0';
-            wait for CLK_PERIOD * 16;
-            
-            -- Data bits
-            for I in 0 to 7 loop
-                if I < 7 then
-                    RX <= DATA(I); -- Send data bit
-                elsif I = 7 then
-                    if LEN = '1' then
-                        RX <= DATA(I);
-                    else
-                        RX <= PARITY_BIT; -- Send parity bit in 7-bit mode
-                    end if;
-                end if;
-                wait for CLK_PERIOD * 16;
-            end loop;
-            
-            -- Stop bit
-            if BAD_STOP_BIT = true then
-                RX <= '0'; -- Bad stop bit
-            else
-                RX <= '1'; -- Good stop bit
-            end if;
-            wait for CLK_PERIOD * 16;
-            
-            -- Return to idle
-            RX <= '1';
-            wait for CLK_PERIOD * 16;
-        end procedure;
     begin
         -- Initial setup
         RST <= '1';
@@ -126,40 +80,96 @@ begin
         -- Test Case 1: Valid 7-bit data with even parity
         LEN <= '0';     -- 7-bit mode
         PARITY <= '0';  -- Even parity
-        SEND_BYTE("01010101", false, false);
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "01010101",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 2: Frame error test
         LEN <= '0';     -- 7-bit mode
         PARITY <= '0';  -- Even parity
-        SEND_BYTE("01010101", true, false);  -- With bad stop bit
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "01010101",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => true,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 3: Parity error test
         LEN <= '0';     -- 7-bit mode
         PARITY <= '0';  -- Even parity
-        SEND_BYTE("01010101", false, true);  -- With bad parity
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "01010101",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => true,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 4: Switch to 8-bit mode
         LEN <= '1';
         PARITY <= '0';
         wait for CLK_PERIOD * 16;
-        SEND_BYTE("10101010", false, false);
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "10101010",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 5: Switch to 7-bit mode with odd parity
         LEN <= '0';     -- Back to 7-bit mode
         PARITY <= '1';  -- Odd parity
         wait for CLK_PERIOD * 16;
-        SEND_BYTE("01010101", false, false);
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "01010101",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         -- Test Case 6: Rapid transitions
         LEN <= '0';     -- 7-bit mode
         PARITY <= '1';  -- Odd parity
-        SEND_BYTE("10101010", false, false);
-        SEND_BYTE("01010101", false, false);  -- Back-to-back transmission
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "10101010",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
+        SEND_BYTE(
+            CLK_PERIOD => CLK_PERIOD,
+            DATA => "01010101",
+            LEN => LEN,
+            PARITY => PARITY,
+            BAD_STOP_BIT => false,
+            BAD_PARITY => false,
+            RX => RX
+        );
         wait for CLK_PERIOD * 16;
         
         wait;

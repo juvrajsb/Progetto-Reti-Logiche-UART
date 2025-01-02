@@ -19,10 +19,12 @@ begin
         CLK <= '0';
         wait for CLK_START;
         
-        CLK <= '1';
-        wait for CLK_PERIOD / 2;
-        
-        CLK <= '0';
-        wait for CLK_PERIOD / 2;
+        loop
+            CLK <= '1';
+            wait for CLK_PERIOD / 2;
+            
+            CLK <= '0';
+            wait for CLK_PERIOD / 2;
+        end loop;
     end process;
 end BHV;

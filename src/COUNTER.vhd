@@ -51,8 +51,7 @@ begin
     SIG_GEN: for I in 1 to REQUIRED_BITS - 1 generate
         T_SIGNALS(I) <= STATE(I - 1) and T_SIGNALS(I - 1);
         D_SIGNALS(I) <= '0' when RESTART_COUNT = '1'
-                        else not STATE(I) when T_SIGNALS(I) = '1'
-                        else STATE(I);
+                        else STATE(I) xor T_SIGNALS(I);
     end generate;
     
     CNT_END <= '1' when STATE = MOD_PRED

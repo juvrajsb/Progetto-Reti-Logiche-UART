@@ -24,6 +24,7 @@ begin
     REG_PS_LOAD <= (START and CTS) when CNT_STATE = "0000"
                    else '0';
     
-    TX_AVAILABLE <= '1' when (((CNT_STATE = "0000" and START = '0') or CNT_STATE = "1001") and CTS = '1')
+    TX_AVAILABLE <= (not START and CTS) when CNT_STATE = "0000"
+                    else CTS when CNT_STATE = "1001"
                     else '0';
 end RTL;

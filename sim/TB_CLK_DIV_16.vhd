@@ -12,7 +12,7 @@ architecture BHV of TB_CLK_DIV_16 is
         port(
             CLK_IN: in std_logic;
             RST: in std_logic;
-            CLK_OUT: out std_logic
+            ENABLE: out std_logic
         );
     end component;
     
@@ -27,13 +27,13 @@ architecture BHV of TB_CLK_DIV_16 is
         );
     end component;
     
-    signal CLK_IN, RST, CLK_OUT: std_logic;
+    signal CLK_IN, RST, ENABLE: std_logic;
 begin
     UUT: CLK_DIV_16
         port map (
             CLK_IN => CLK_IN,
             RST => RST,
-            CLK_OUT => CLK_OUT
+            ENABLE => ENABLE
         );
     
     CLOCK_GENERATOR: CLK_GEN

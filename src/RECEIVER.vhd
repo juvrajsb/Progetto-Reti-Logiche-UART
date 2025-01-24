@@ -40,7 +40,6 @@ architecture RTL of RECEIVER is
             SET: in std_logic;
             RST: in std_logic;
             D_IN: in std_logic;
-            LOAD: in std_logic;
             D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
         );
     end component;
@@ -181,11 +180,10 @@ begin
     )
     port map(
         CLK => CLK,
-        EN => '1',
+        EN => REG_SP_LOAD,
         SET => '0',
         RST => RST,
         D_IN => SAMPLED_BIT,
-        LOAD => REG_SP_LOAD,
         D_OUT => REG_SP_DATA
     );
     

@@ -46,7 +46,7 @@ architecture RTL of TRANSMITTER is
     port(
         CLK_IN: in std_logic;
         RST: in std_logic;
-        CLK_OUT: out std_logic
+        ENABLE: out std_logic
     );
     end component;
     
@@ -183,7 +183,7 @@ begin
     port map(
         CLK_IN => CLK,
         RST => RST,
-        CLK_OUT => CLK_EN
+        ENABLE => CLK_EN
     );
 
     -- INPUT ELABORATION + SELECTION BASED ON LEN AND PARITY

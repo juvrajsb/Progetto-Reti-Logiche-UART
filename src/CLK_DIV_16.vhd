@@ -1,4 +1,3 @@
-
 library IEEE;
 use IEEE.STD_LOGIC_1164.ALL;
 
@@ -6,7 +5,7 @@ entity CLK_DIV_16 is
     port(
         CLK_IN: in std_logic;
         RST: in std_logic;
-        CLK_OUT: out std_logic
+        ENABLE: out std_logic
     );
 end CLK_DIV_16;
 
@@ -41,6 +40,6 @@ begin
         CNT => CNT
     );
     
-    CLK_OUT <= '1' when CNT = "0001"
+    ENABLE <= '1' when CNT = "0001"
                else '0';
 end RTL;

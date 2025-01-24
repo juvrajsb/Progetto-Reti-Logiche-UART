@@ -12,7 +12,6 @@ entity REG_SP is
         SET: in std_logic;
         RST: in std_logic;
         D_IN: in std_logic;
-        LOAD: in std_logic;
         D_OUT: out std_logic_vector(REG_NUMBER - 1 downto 0)
     );
 end REG_SP;
@@ -27,7 +26,7 @@ begin
                 STATE <= (others => '1');
             elsif RST = '1' then
                 STATE <= (others => '0');
-            elsif EN = '1' and LOAD = '1' then
+            elsif EN = '1' then
                 -- Right shift
                 STATE <= D_IN & STATE(REG_NUMBER - 1 downto 1);
             end if;

@@ -213,7 +213,7 @@ begin
             BAD_PARITY => true,
             RX => SEND_BYTE_SOURCE
         );
-                
+        
         wait;
     end process;
 end BHV;
